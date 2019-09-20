@@ -15,32 +15,34 @@ class enviosimples{
 
 	private $enviosimples_url = "";
 
-    private $enviosimples_production_url = "https://api.enviosimples.com.br:3000/es-api/";
-    private $enviosimples_sandbox_url = "https://sandbox-api.enviosimples.com.br:3000/es-api/";
+    private $enviosimples_production_url = "https://api.enviosimples.com.br/es-api/";
+    private $enviosimples_sandbox_url = "https://sandbox-api.enviosimples.com.br/es-api/";
 
 	public function __construct($token, $sandbox){
 		$this->token = $token;
 
         $this->enviosimples_url = $this->enviosimples_production_url;
+
         if ($sandbox=='yes') $this->enviosimples_url = $this->enviosimples_sandbox_url;
 	}
 
 	private function call_curl($type,$url,$parms){	
 
+    
 		$headers = [
-			//"Key: " .$this->token,
-            //"Authorization: " .$this->token,
+			"Key: " .$this->token,
 			'Content-Type: application/json',
-			'Accept-Charset: utf-8',
-            "Key: EpwTwGUXZGdNuElWBv+F3LXMUoiTIplaVx6Nf5J2NUk="
-		];		
+			'Accept-Charset: utf-8'
+        ];	
+        
 		
-		$params_fmt = json_encode($parms);		
-
+        $params_fmt = json_encode($parms);	
+        	
+        
         $curl_url = $this->enviosimples_url.$url;		
 		
 		$process = curl_init();
-
+        
 		curl_setopt($process, CURLOPT_FRESH_CONNECT, true);
 		curl_setopt($process, CURLOPT_HTTPHEADER,$headers);
 		curl_setopt($process, CURLOPT_POST, 1);
@@ -49,11 +51,13 @@ class enviosimples{
 		curl_setopt($process, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($process, CURLOPT_POSTFIELDS, $params_fmt);		
 		curl_setopt($process, CURLOPT_HEADER, false);		
-		curl_setopt($process,CURLOPT_URL,$curl_url);
+		curl_setopt($process, CURLOPT_URL,$curl_url);
         curl_setopt($process, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($process, CURLOPT_SSL_VERIFYPEER, 0);
-
-		$return = curl_exec($process);
+        
+        $return = curl_exec($process);
+        
+        // echo "<pre>";print_r($return);echo "</pre>";die();
 
 		$status = curl_getinfo($process,CURLINFO_HTTP_CODE);
 
@@ -71,7 +75,7 @@ class enviosimples{
             return ['error'=>$return_decode->data->error, 'message'=>$return_decode->data->message];                            
         }
 
-		curl_close($process);	
+        curl_close($process);	
 		return json_decode($return);
 	}
 

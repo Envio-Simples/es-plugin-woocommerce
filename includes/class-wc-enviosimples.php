@@ -154,9 +154,7 @@ function woocommerce_enviosimples_init(){
 					$rates = [
 					'id' => 'woocommerce_enviosimples_'.$rate->name,
 					'label' => $rate->name.$prazo_texto,
-					// 'cost' => $rate->price_enviosimples,
 					'cost' => $rate->price_finish,
-					//'cost' => $rate->price,
 					'meta_data' => $meta_delivery
 					];	        		
 	        		// echo "<pre>";
