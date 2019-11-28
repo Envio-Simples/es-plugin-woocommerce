@@ -15,8 +15,8 @@ class enviosimples{
 
 	private $enviosimples_url = "";
 
-    private $enviosimples_production_url = "https://api.enviosimples.com.br/es-calculator/";
-    private $enviosimples_sandbox_url = "https://sandbox-api.enviosimples.com.br/es-calculator/";
+    private $enviosimples_production_url = "https://api.enviosimples.com.br";
+    private $enviosimples_sandbox_url = "https://sandbox-api.enviosimples.com.br";
 
 	public function __construct($token, $sandbox){
 		$this->token = $token;
@@ -82,16 +82,16 @@ class enviosimples{
 	public function calculate_shipping(){
 
 		$data = [
-			'cepOrigem' => $this->source_zip_code,
-			'cepDestino' => $this->target_zip_code,
-			'peso' => $this->weight,
-			'valorDeclarado' => $this->package_value,
-			'altura'	=> $this->height,
-			'largura'	=> $this->width,
-			'comprimento' => $this->length
+			'zipCodeOrigin' => $this->source_zip_code,
+			'zipCodeDestiny' => $this->target_zip_code,
+			'weight' => $this->weight,
+			'valueDeclared' => $this->package_value,
+			'height'	=> $this->height,
+			'width'	=> $this->width,
+			'length' => $this->length
 		];
         // echo "<pre>";print_r($data);echo "</pre>";die();
-		$return = $this->call_curl('POST','calculator',$data);
+		$return = $this->call_curl('POST','/es-calculator/calculator',$data);
 		$this->rates = [];
 		
 		if ($return != []){
@@ -108,7 +108,7 @@ class enviosimples{
 
     public function send_labels($label_data){
 
-        $return = $this->call_curl('POST','tickets',$label_data);
+        $return = $this->call_curl('POST','/es-api/tickets',$label_data);
         return (object)$return;
     }
 
