@@ -15,8 +15,8 @@ class enviosimples{
 
 	private $enviosimples_url = "";
 
-    private $enviosimples_production_url = "https://api.enviosimples.com.br/es-api/";
-    private $enviosimples_sandbox_url = "https://sandbox-api.enviosimples.com.br/es-api/";
+    private $enviosimples_production_url = "https://api.enviosimples.com.br/es-calculator/";
+    private $enviosimples_sandbox_url = "https://sandbox-api.enviosimples.com.br/es-calculator/";
 
 	public function __construct($token, $sandbox){
 		$this->token = $token;
@@ -91,7 +91,7 @@ class enviosimples{
 			'comprimento' => $this->length
 		];
         // echo "<pre>";print_r($data);echo "</pre>";die();
-		$return = $this->call_curl('POST','shipping-company/calc-price-deadline',$data);
+		$return = $this->call_curl('POST','calculator',$data);
 		$this->rates = [];
 		
 		if ($return != []){
