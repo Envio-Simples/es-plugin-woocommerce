@@ -2,9 +2,9 @@
 /**
  * Plugin Name:          WooCommerce Envio Simples 
  * Description:          Adds Envio Simples shipping methods to your WooCommerce store.
- * Author:               Augesystems
- * Author URI:           https://www.augesystems.com.br
- * Version:              1.0.0
+ * Author:               
+ * Author URI:           
+ * Version:              4.0.0
  * License:              GPLv2 or later 
  * WC requires at least: 3.0.0
  * WC tested up to:      3.4.4
@@ -16,7 +16,6 @@
  * <https://www.gnu.org/licenses/gpl-2.0.txt>.
  * 
  */
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; 
 }

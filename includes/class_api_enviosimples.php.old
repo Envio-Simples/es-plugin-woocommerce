@@ -6,22 +6,19 @@ class enviosimples{
     protected $reverse; 
     protected $key; //f446202be53jNHwbSXKWwRq6U32WIOecK5ddefa3419f
     protected $volumes = array();
-    
-    protected $log_isw = true;
    
-	 private $enviosimples_url = "";
+	private $enviosimples_url = "";
 
     private $enviosimples_production_url = "https://api.enviosimples.com.br";
     private $enviosimples_sandbox_url    = "https://sandbox-api.enviosimples.com.br";
 
-	public function __construct($key = '', $sandbox = 'no'){
-      
+	public function __construct($key = '', $sandbox = 'no' ){
 		$this->key = $key;    
         
-     if ($sandbox=='yes') 
-         $this->enviosimples_url = $this->enviosimples_sandbox_url; 
-     else 
-         $this->enviosimples_url = $this->enviosimples_production_url;
+        if ($sandbox=='yes') 
+            $this->enviosimples_url = $this->enviosimples_sandbox_url; 
+        else 
+            $this->enviosimples_url = $this->enviosimples_production_url;
 	}
    
 	public function call_curl($type,$url,$parameters){	
@@ -31,11 +28,8 @@ class enviosimples{
             "key:{$this->key}"
         ];	
 
-        if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$headers',$headers);}
-        
-      
-        $params   = json_encode($parameters);	   if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$params',$params);}
-
+        $params   = json_encode($parameters);	
+               
         $curl_url = $this->enviosimples_url.$url;		
         
         $ch = curl_init();
@@ -55,45 +49,23 @@ class enviosimples{
         
            $status = curl_getinfo($ch,CURLINFO_HTTP_CODE);
 
-           if ($status==0) {
-              if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$return',$return);}
-              if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$status',$status);}
-              if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','return',['error'=>1, 'message' => 'Não foi possível conectar-se com o Envio Simples. Tente novamente mais tarde']);}
-
-               return (object)['error'=>1, 'message' => 'Não foi possível conectar-se com o Envio Simples. Tente novamente mais tarde'];
-           }
+           if ($status==0) return (object)['error'=>1, 'message' => 'Não foi possível conectar-se com o Envio Simples. Tente novamente mais tarde'];
 
            if ($status > 400){
-                   if ($status==401) {
-                        if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$return',$return);}
-                        if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$status',$status);}
-                        if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','return',['error'=>401, 'message' => 'Acesso não autorizado. Verifique se o seu token foi preenchido corretamente ou fale com a Envio Simples']);}
-                        
-                        return (object) ['error'=>401, 'message' => 'Acesso não autorizado. Verifique se o seu token foi preenchido corretamente ou fale com a Envio Simples'];
-                   }
-                   
+                   if ($status==401) return ['error'=>401, 'message' => 'Acesso não autorizado. Verifique se o seu token foi preenchido corretamente ou fale com a Envio Simples'];
                    $message = curl_error($ch);
-                   curl_close($ch);                  
-
-                   if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$return',$return);}
-                   if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$status',$status);}
-                   if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','return',['error'=>$status.'', 'message' => $message]);}
-
+                   curl_close($ch);                   
                    return (object)['error'=>$status.'', 'message' => $message];                            
            }
+
 
            $return_decode = json_decode($return);
 
            if (isset($return_decode->data->error)){            
-                  if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$return_decode',$return_decode);}
-                  if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$return',['error'=>$return_decode->data->error.'', 'message'=>$return_decode->data->message]);}
-                  
-                  return (object)(['error'=>$return_decode->data->error.'', 'message'=>$return_decode->data->message]);                            
+               return (object)(['error'=>$return_decode->data->error.'', 'message'=>$return_decode->data->message]);                            
            }              
 
         curl_close($ch);	
-        
-        if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$return_decode',$return_decode);}
         
         return $return_decode; //Objetos Json 
 	}
@@ -107,7 +79,6 @@ class enviosimples{
          'volumes'        => $this->volumes     
       ]; 
 
-      
       //print_r($data); exit;
       
       if(trim($this->key) <> ""){
@@ -115,7 +86,7 @@ class enviosimples{
       }
 
       $return = $this->call_curl('POST','/es-calculator/calculator-v2',$data);          
-            
+      
       if (isset($return->error)){
          return;
       }
@@ -127,8 +98,6 @@ class enviosimples{
       foreach($return->data->prices->valid as $rate){
          $rates['rate'][] = $rate;
       }
-      
-      if($this->log_isw){ $this->isw_log_envios('calculate_shipping','$rates',$rates);}
       
       if(count($rates) > 0 ){
          $rates['calculatorId'] = $return->data->calculatorId;
@@ -326,22 +295,6 @@ class enviosimples{
     private function only_numbers($val){
     	return preg_replace("/[^0-9]/","",$val);
     }
-    
-    //DEBUG
-   public function isw_log_envios($func = '',$variavel='', $conteudo=''){
-      ob_start();
-         var_dump($conteudo);
-         $content = ob_get_contents();
-      ob_end_clean();
-
-      $path = plugin_dir_path(__FILE__);
-      
-      $fp1 = fopen($path.'log_envios.log', "a");
-
-      fwrite($fp1, $func . " - " . $variavel . "\n" . $content ."\n\n");
-
-      fclose($fp1);
-   }    
 }
 
 ?>

@@ -8,7 +8,6 @@ include WC_ENVIOSIMPLES_DIR . "/includes/class_api_enviosimples.php";
 include WC_ENVIOSIMPLES_DIR . "/includes/label_on_processing_orders.php";
 
 function woocommerce_enviosimples_logger($message){
-
 	    $log = wc_get_logger();
         $context = array( 'source' => 'envio_simples' );
         $log->debug($message,$context);	
@@ -33,7 +32,7 @@ function woocommerce_enviosimples_init(){
 					);	
 				$this->init();  				
 			}
-
+   
 			public function init(){
 				$this->init_form_fields();
 				$this->init_instance_settings();
@@ -43,47 +42,54 @@ function woocommerce_enviosimples_init(){
 			public function init_form_fields(){
 
 				$this->instance_form_fields = [
-				'enabled' => [
-				'title' => __('Ativo','woocommerce_enviosimples'),
-				'type' => 'checkbox',
-				'label' => 'Ativo',
-				'default' => 'yes',
-				'description' => 'Informe se este método de frete é válido'
-				],	
-				'sandbox' => [
-				'title' => __('Ambiente de testes (Sandbox)','woocommerce_enviosimples'),
-				'type' => 'checkbox',
-				'label' => 'Ambiente Sandbox',
-				'default' => 'yes',
-				'description' => 'Informe se está utilizando ambiente de testes (Sandbox)'
-				],					
-				'token' => [
-				'title' => __('Seu token de acesso ao enviosimples','woocommerce_enviosimples'),
-				'type' => 'text',						
-				'default' => '',
-				'description' => 'Caso ainda não tenha seu token, entre em contato com a enviosimples'
-				],									
-				'source_zip_code' => [
-				'title' => __('CEP de origem para cálculo'),
-				'type' => 'text',
-				'default' => '00000-000',
-				'class' => 'as_mask_zip_code',
-				'description' => 'Peso mínimo para o cliente poder escolher esta modalidade'
-				],						
-				'show_delivery_time' => [
-				'title' => __('Mostrar prazo de entrega','woocommerce_enviosimples'),
-				'type' => 'checkbox',
-				'label' => 'Mostrar prazo de entrega',
-				'default' => 'yes',
-				'description' => 'Informe se devemos mostrar o prazo de entrega'
-				],	
-				'show_estimate_on_product_page' => [
-				'title' => __('Calcular frete na página do produto','woocommerce_enviosimples'),
-				'type' => 'checkbox',
-				'label' => 'Frete na página do produto',
-				'default' => 'yes',
-				'description' => 'Informe se quer que o cliente tenha uma previsão do frete na página do produto'
-				],						
+                    'enabled' => [
+                    'title' => __('Ativo','woocommerce_enviosimples'),
+                    'type' => 'checkbox',
+                    'label' => 'Ativo',
+                    'default' => 'yes',
+                    'description' => 'Informe se este método de frete é válido'
+                    ],	
+                    'sandbox' => [
+                    'title' => __('Ambiente de testes (Sandbox)','woocommerce_enviosimples'),
+                    'type' => 'checkbox',
+                    'label' => 'Ambiente Sandbox',
+                    'default' => 'yes',
+                    'description' => 'Informe se está utilizando ambiente de testes (Sandbox)'
+                    ],					
+                    'key' => [
+                    'title' => __('Seu token/key de acesso ao enviosimples','woocommerce_enviosimples'),
+                    'type' => 'text',						
+                    'default' => '', //f446202be53jNHwbSXKWwRq6U32WIOecK5ddefa3419f
+                    'description' => 'Caso ainda não tenha seu token, entre em contato com a enviosimples'
+                    ],				
+                    'zipCodeOrigin' => [
+                    'title' => __('CEP do Município de origem para cálculo'),
+                    'type' => 'number',
+                    'default' => '',//35171099
+                    'class' => '',
+                    'description' => 'Exemplo: 35171099 - O CEP precisa estar cadastrado como um endereço na plataforma da Envio Simples'
+                    ],	 
+                    'show_delivery_time' => [
+                    'title' => __('Mostrar prazo de entrega','woocommerce_enviosimples'),
+                    'type' => 'checkbox',
+                    'label' => 'Mostrar prazo de entrega',
+                    'default' => '',
+                    'description' => 'Informe se devemos mostrar o prazo de entrega'
+                    ],	
+                    'show_estimate_on_product_page' => [
+                    'title' => __('Calcular frete na página do produto','woocommerce_enviosimples'),
+                    'type' => 'checkbox',
+                    'label' => 'Frete na página do produto',
+                    'default' => '',
+                    'description' => 'Informe se quer que o cliente tenha uma previsão do frete na página do produto'
+                    ],   
+                    'calculate_shipping' => [
+                    'title' => __('Informe a porcentagem a ser segurada'),
+                    'type' => 'number',
+                    'default' => '100',
+                    'class' => '',
+                    'description' => 'Percentual do total da venda que será utilizado como Valor Segurado.'
+                    ],
 				];
 			}
 
@@ -97,109 +103,136 @@ function woocommerce_enviosimples_init(){
 
 			}
 
-			public function calculate_shipping( $package = false) {
-				
+			public function calculate_shipping( $package = false) {    			
 				$use_this_method = $this->validate_shipping($package);
-				if (!$use_this_method) return false;
-				
-				$product_statements = $this->sumarize_package($package);
 
-				$token = $this->instance_settings['token'];
-				$sandbox = $this->instance_settings['sandbox'];
-
-				$enviosimples = new enviosimples($token,$sandbox);
-				$enviosimples->setWeight($product_statements['total_weight']);
-				$enviosimples->setSourceZipCode($this->instance_settings['source_zip_code']);
-				$enviosimples->setTargetZipCode($package['destination']['postcode']);
-				$enviosimples->setPackageValue($product_statements['total_value']);
-				$enviosimples->setWidth($product_statements['maximum_width']);
-				$enviosimples->setHeight($product_statements['maximum_height']);
-				$enviosimples->setLength($product_statements['maximum_length']);
-				
-				$enviosimples->calculate_shipping();
-				
-				$received_rates = $enviosimples->getRates();
-
-				if (isset($received_rates->error)){
-					echo "<pre>";
-					print_r($received_rates->message);
-					echo "</pre>";
+				if (!$use_this_method) {
+					return false;
+				}
+					
+				if($package['destination']['postcode'] == '') {
 					return;
 				}
 
-				if (count($received_rates)==0) return;
-
-				$show_delivery_time = $this->instance_settings['show_delivery_time'];
-
-				foreach($received_rates as $rate){
-
-					// Display delivery.
-					$meta_delivery_time = [];
-
-					$prazo_em_dias = preg_replace("/[^0-9]/","",$rate->deadline);
-
-					$meta_delivery = array(					
-						'_enviosimples_id' => $rate->_id,
-						'_type_send' => $rate->type_send,
-						'_enviosimples_token' => $this->instance_settings['token'],
-						'_enviosimples_sandbox' => $this->instance_settings['sandbox'],
-						);
-
-					if ( 'yes' === $show_delivery_time ) $meta_delivery['_enviosimples_delivery_estimate'] = intval( $prazo_em_dias );
-
-					$prazo_texto = "";
-					if ( 'yes' === $show_delivery_time ) $prazo_texto = " (".$rate->deadline.")";
+				$key         = $this->instance_settings['key']; 
+				
+				$sandbox     = $this->instance_settings['sandbox'];
+				
+				$enviosimples = new enviosimples($key,$sandbox);
+					   
+					foreach($package['contents'] as $item){
 					
+						$product = $item['data'];	        		
+				   
+				   //print_r($product); exit;
+				   
+						$height = (integer)preg_replace("/[^0-9]/","",$product->get_height());
+						$width  = (integer)preg_replace("/[^0-9]/","",$product->get_width());
+						$length = (integer)preg_replace("/[^0-9]/","",$product->get_length());
 
-					$rates = [
-					'id' => 'woocommerce_enviosimples_'.$rate->name,
-					'label' => $rate->name.$prazo_texto,
-					'cost' => $rate->price_finish,
-					'meta_data' => $meta_delivery
-					];	        		
-	        		// echo "<pre>";
-	        		// print_r($rates);
-	        		// echo "</pre>";
-	        		// die();					
-					$this->add_rate($rates, $package);
+						$quantity = $item['quantity'];
+				   
+						for($i=0;$i<$quantity;$i++){
+							  $volume = [];
+
+							  $volume['length'] = wc_get_dimension($length,'cm'); //comprimento 
+							  $volume[ 'width'] = wc_get_dimension($width,'cm'); //largura 
+							  $volume['height'] = wc_get_dimension($height,'cm'); //altura
+							  $volume['weight'] = wc_get_weight($product->get_weight(),'kg'); //Peso Bruto do produto 
+
+							  $enviosimples->addVolumes($volume);
+						}
+					}	
+					
+				$zipCodeOrigin  = $this->instance_settings['zipCodeOrigin'];
+				$zipCodeOrigin = str_replace('.','',$zipCodeOrigin); $zipCodeOrigin = str_replace('.','',$zipCodeOrigin);
+				$zipCodeOrigin = str_replace('-','',$zipCodeOrigin); $zipCodeOrigin = str_replace('-','',$zipCodeOrigin);
+				
+				$zipCodeDestiny = $package['destination']['postcode']; 
+				$zipCodeDestiny = str_replace('.','',$zipCodeDestiny); $zipCodeDestiny = str_replace('.','',$zipCodeDestiny);
+				$zipCodeDestiny = str_replace('-','',$zipCodeDestiny); $zipCodeDestiny = str_replace('-','',$zipCodeDestiny);
+	  
+				$porc = $this->instance_settings['calculate_shipping'];
+				
+				if($porc == '' || $porc > 100) {$porc = 100;}
+				
+				$valueDeclared  = $package['cart_subtotal'] * ($porc/100); //aqui 
+				
+				$shipping = $enviosimples->calculate_shipping($zipCodeOrigin,$zipCodeDestiny,$valueDeclared,'false');
+				
+				if(is_array($shipping)){
+				   $calculatorId = $shipping['calculatorId'];
+				   
+				   foreach($shipping['rate'] as $rate){            
+					  $meta_delivery = array(			
+						   '_calculatorId' => $calculatorId, //Obrigadorio
+						   '_shippingId'   => $rate->shippingId, //no caso deste o ID é muito importnte 
+						   '_valueDeclared'   => number_format($valueDeclared, 2, ',', '.'), 
+						   '_token' => $this->instance_settings['key'], //no caso deste o ID é muito importnte 
+						   '_type_send'    => $rate->alias,
+						   '_enviosimples_sandbox' => $this->instance_settings['sandbox'],
+					  );
+					  
+					  $price = (float)$rate->priceFinish;
+
+					  $prazo_texto = "";
+
+					  $show_delivery_time = $this->instance_settings['show_delivery_time'];
+					  
+					  if ( 'yes' === $show_delivery_time ) $prazo_texto = " (".$rate->deadline.")";
+
+					  $rates_woo = [
+						   'id'        => 'woocommerce_enviosimples'.$rate->name,
+						   'label'     => $rate->name . $prazo_texto,
+						   'cost'      => $price,
+						   'meta_data' => $meta_delivery
+					  ];	        	                                 
+					   $this->add_rate($rates_woo, $package);
+				   }
+				}else{
+					return;
 				}
-
 				return;    			
-
 			}
-
+/****************************/
 			public function forecast_shipping( $enviosimples_product = false) {					        	
-
 				global $product;
 				global $woocommerce;
+            
+            
 				// echo "<pre>";print_r($product);echo "</pre>";				
 				// echo "<pre>";print_r($this->instance_settings);echo "</pre>";
 				if ($this->instance_settings['enabled']!='yes') return;
 
 				if ($this->instance_settings['show_estimate_on_product_page']!='yes') return;				
 
-				$token = $this->instance_settings['token'];
-				$sandbox = $this->instance_settings['sandbox'];
+           
+            $key         = $this->instance_settings['key']; 
+            $sandbox     = $this->instance_settings['sandbox'];
 
-				$height = (integer)preg_replace("/[^0-9]/","",$product->get_height());
-				$width = (integer)preg_replace("/[^0-9]/","",$product->get_width());
-				$length = (integer)preg_replace("/[^0-9]/","",$product->get_length());
-
-				$dimensions = [];
-				$dimensions[] = wc_get_dimension($length,'cm');
-				$dimensions[] = wc_get_dimension($width,'cm');
-				$dimensions[] = wc_get_dimension($height,'cm');
-
-				sort($dimensions);
-
-				$length = $dimensions[2];
-				$width = $dimensions[1];
-				$height = $dimensions[0];
-
-				$weight = wc_get_weight($product->get_weight(),'kg');
-				$price = $product->get_price();
-
+            $height = (integer)preg_replace("/[^0-9]/","",$product->get_height());
+            $width  = (integer)preg_replace("/[^0-9]/","",$product->get_width());
+            $length = (integer)preg_replace("/[^0-9]/","",$product->get_length());
+            $weight= (integer)preg_replace("/[^0-9]/","",wc_get_weight($product->get_weight(),'kg'));
+            
+            $quantity = 0;
+            $cart            = $woocommerce->cart->get_cart();
+            $product_cart_id = $woocommerce->cart->generate_cart_id( $product->get_id() );
+            if( $woocommerce->cart->find_product_in_cart( $product_cart_id )) {
+                $quantity = $cart[$product_cart_id]['quantity'];
+            }
+            if($quantity <= 0 ) {$quantity = 1;}
+                       
+            $volume = [];
+            $volume['length'] = wc_get_dimension($length,'cm'); //comprimento 
+            $volume[ 'width'] = wc_get_dimension($width,'cm'); //largura 
+            $volume['height'] = wc_get_dimension($height,'cm'); //altura
+            $volume['weight'] = wc_get_weight($product->get_weight(),'kg'); //Peso Bruto do produto 
+            $price = $product->get_price();
+                     
 				if ($weight==0 || $height==0 || $width==0 || $length==0) return;
+
+
 
 				$product_link = $product->get_permalink();
 
@@ -214,6 +247,7 @@ function woocommerce_enviosimples_init(){
 					}
 				}
 
+                        
 				echo "
 				<style>
 					.as-row{margin:0px -15px;}
@@ -249,38 +283,41 @@ function woocommerce_enviosimples_init(){
 				if (trim($target_zip_code)=="") return;
 
 				$target_zip_code = preg_replace("/[^0-9]/","",$target_zip_code);
-				$source_zip_code = preg_replace("/[^0-9]/","",$this->instance_settings['source_zip_code']);
-				// $source_zip_code = get_option('woocommerce_store_postcode');
+				$zipCodeOrigin   = preg_replace("/[^0-9]/","",$this->instance_settings['zipCodeOrigin']);
+				// $zipCodeOrigin = get_option('woocommerce_store_postcode');
 
 				$rates = [];
 
-				$enviosimples = new enviosimples($token,$sandbox);
-				$enviosimples->setWeight($weight);
-				$enviosimples->setSourceZipCode($source_zip_code);
-				$enviosimples->setTargetZipCode($target_zip_code);
-				$enviosimples->setPackageValue($price);
-				$enviosimples->setWidth($width);
-				$enviosimples->setHeight($height);
-				$enviosimples->setLength($length);
-				
-				$enviosimples->calculate_shipping();
-				// $teste = [$token,$weight,$source_zip_code,$target_zip_code,$price,$width,$height,$length];
-				$received_rates = $enviosimples->getRates();
-			
-				if (isset($received_rates->error)){
+/*Sua programação de Frete */
+
+            $enviosimples = new enviosimples($key,$sandbox);
+            
+            for($i=0;$i<$quantity;$i++){
+               $enviosimples->addVolumes($volume);
+            }            
+            
+            $porc = $this->instance_settings['calculate_shipping'];
+            
+            if($porc == '' || $porc > 100) {$porc = 100;}
+
+            $valueDeclared  = ($quantity * $price) * ($porc/100); //aqui 
+
+            $shipping       = $enviosimples->calculate_shipping($zipCodeOrigin,$target_zip_code,$valueDeclared,'false');
+            
+		
+				 if(!is_array($shipping)){
 					echo "<pre>";
-					echo "<p>".$received_rates->message."</p>";
+					echo "<p> Não foi possivel calcular o frete na págna do produto.</p>";
 					echo "</pre>";
 					return;
 				}				
 				
-				if (count($received_rates)==0) return [];
-
-				$show_delivery_time = $this->instance_settings['show_delivery_time'];
+/***************************************************/
+            $show_delivery_time = $this->instance_settings['show_delivery_time'];
 
 				$rates = [];
 
-				foreach($received_rates as $rate){
+				foreach($shipping['rate'] as $rate){ 
 
 					$rate_item = [];
 
@@ -289,13 +326,11 @@ function woocommerce_enviosimples_init(){
 
 					$rate_item['label'] = $rate->name . $prazo_texto;
 					// $rate_item['cost'] = wc_price($rate->price_enviosimples);
-					$rate_item['cost'] = wc_price($rate->price_finish);
+					$rate_item['cost'] = $price = wc_price($rate->priceFinish);
 					//$rate_item['cost'] = wc_price($rate->price);
 
 					$rates[] = $rate_item;					
 				}				
-
-
 
 				if (count($rates)==0) return;
 
@@ -325,8 +360,10 @@ function woocommerce_enviosimples_init(){
 					</div>
 				</div>
 				";
-
 			}
+/***************************/
+
+
 
 			private function validate_shipping($package = false){
 
@@ -335,64 +372,254 @@ function woocommerce_enviosimples_init(){
 				return true;
 
 			}
-
-			private function sumarize_package($package){
-	        	// print_r(get_option('woocommerce_weight_unit' ));
-				$package_values = [
-				'total_weight' => 0,
-				'total_value' => 0,
-				'maximum_length' => 0,
-				'maximum_width' => 0,
-				'maximum_height' => 0
-				];	        	
-
-				foreach($package['contents'] as $item){
-
-					$product = $item['data'];	        		
-
-					$height = (integer)preg_replace("/[^0-9]/","",$product->get_height());
-					$width = (integer)preg_replace("/[^0-9]/","",$product->get_width());
-					$length = (integer)preg_replace("/[^0-9]/","",$product->get_length());
-
-					$dimensions = [];
-					$dimensions[] = wc_get_dimension($length,'cm');
-					$dimensions[] = wc_get_dimension($width,'cm');
-					$dimensions[] = wc_get_dimension($height,'cm');
-
-					sort($dimensions);
-
-					$length = $dimensions[2];
-					$width = $dimensions[1];
-					$height = $dimensions[0];
-
-					$weight = wc_get_weight($product->get_weight(),'kg');
-					$package_values['total_weight']+= $weight;
-
-					$value = $item['line_total'];
-					$package_values['total_value'] += $value;
-
-					if ($width > $package_values['maximum_width']) $package_values['maximum_width'] = $width;
-					if ($height > $package_values['maximum_height']) $package_values['maximum_height'] = $height;
-					if ($length > $package_values['maximum_length']) $package_values['maximum_length'] = $length;
-
-				}	        	
-
-				return $package_values;
-
-			}
-
 		}
 	}
 }
+
+
+function adjust_shipping_rate( $rates ){
+    global $woocommerce;
+
+	$notice =true;
+	foreach($rates as $rate){
+		
+		$pos = strpos($rate->id, 'woocommerce_enviosimples');
+		if ($pos === false) {
+			//não faz nada
+		}else{
+			$notice = false;
+			break;
+		}
+	}
+	
+	if($notice){
+		wc_add_notice( ( "<strong>ENVIO SIMPLES: Não foi possível encontrar um método de envio válido." ), "notice" );
+	}
+
+	return $rates;
+}
+add_filter( 'woocommerce_package_rates', 'adjust_shipping_rate', 20, 1 );
+
+
+add_action('woocommerce_after_checkout_form', 'my_custom_message');
+function my_custom_message() {
+	
+	$notice = true;
+	foreach( WC()->session->get('shipping_for_package_0')['rates'] as $method_id => $rate ){
+		
+		$pos = strpos($method_id, 'woocommerce_enviosimples');
+		if ($pos === false) {
+			//não faz nada
+		}else{
+			$notice = false;
+			break;
+		}
+	}
+	if($notice){
+		wc_add_notice( ( "<strong>ENVIO SIMPLES: Não foi possível encontrar um método de envio válido.." ), "notice" );
+	}	
+}
+     
 add_action('woocommerce_shipping_init','woocommerce_enviosimples_init');
 
 function add_woocommerce_enviosimples( $methods ) {
 	$methods['woocommerce_enviosimples'] = 'WC_woocommerce_enviosimples'; 
 	return $methods;
 }
+/************************************************************************/
+/************************************************************************/
+/************************************************************************/
+/************************************************************************/
+/************************************************************************/
+add_action( 'woocommerce_order_status_processing', 'isw_woo_update_ticket', 10, 1 );
+add_action( 'woocommerce_order_status_completed', 'isw_woo_update_ticket', 10, 1 );
+function isw_woo_update_ticket( $order_id ) {
+   global $wpdb;
+   global $woocommerce;
+   //Busca a Etiqueta e atualiza o post meta_data
+   $meta_key = '_ticket_code';
+   $ticket_code = get_post_meta( $order_id, "{$meta_key}", true); 
+   if( ! $ticket_code){ //Senão existe gera uma etiqueta 
+   
+      $calculatorId = isw_get_item_meta($order_id,'_calculatorId');
+      $content      = 'PRODUTOS';
+      $alias        = isw_get_item_meta($order_id,'_type_send'); 
+      $document     = 'declaracao_conteudo';
+   
+      //item_comprados 
+     $prefix  = $wpdb->prefix;
+     $sql = "SELECT order_item_id
+              FROM  {$prefix}woocommerce_order_items items
+             WHERE  items.order_item_type = 'line_item' AND 
+                    items.order_id    =  {$order_id}";
+      $rs = $wpdb->get_results($sql);
+       
+      $declarationItens = [];
+      foreach($rs as $linha){
+         $order_item_id = $linha->order_item_id;
+         $quantidade = isw_get_item_meta_id($order_item_id,'_qty');
+  
+         for($i=0;$i<(int)$quantidade;$i++){
+            $item = get_the_title(isw_get_item_meta_id($order_item_id,'_product_id'));
+            
+            $content = $item.' e etc';
+            
+            $subtotal   = isw_get_item_meta_id($order_item_id,'_line_subtotal');
+         
+            $quantidade = isw_get_item_meta_id($order_item_id,'_qty');
+              
+            $value = $subtotal / $quantidade;
+            
+            $count = 1;
+            
+            $declarationItens[] = array('item'=>"{$item}",'value'=>$value,'count'=> $count);
+         }
+      }
+
+      
+      
+      $type = get_post_meta($order_id,'_billing_persontype',true)== '1' ? 'physical-person':'legal-person';
+            
+      $name      = get_post_meta($order_id,'_shipping_first_name',true) . ' ' . get_post_meta($order_id,'_shipping_last_name',true);
+      
+      $document2 = $type =='legal-person' ? get_post_meta($order_id,'_billing_cnpj',true)  :  get_post_meta($order_id,'_billing_cpf',true)  ; //Claudio Sanches 
+      
+      $document2 = str_replace(".","",$document2); $document2 = str_replace(".","",$document2); $document2 = str_replace(".","",$document2); $document2 = str_replace(".","",$document2); $document2 = str_replace(".","",$document2);
+      $document2 = str_replace("-","",$document2); $document2 = str_replace("-","",$document2); $document2 = str_replace("-","",$document2); $document2 = str_replace("-","",$document2); $document2 = str_replace("-","",$document2);
+      $document2 = str_replace('/',"",$document2); $document2 = str_replace('/',"",$document2); $document2 = str_replace('/',"",$document2); $document2 = str_replace('/',"",$document2); $document2 = str_replace('/',"",$document2);
+      
+      $phone     = get_post_meta($order_id,'_billing_phone',true); $phone = str_replace(" ","",$phone); $phone = str_replace("-","",$phone); $phone = str_replace(".","",$phone);   $phone = str_replace("(","",$phone); $phone = str_replace(")","",$phone);
+      $email     = get_post_meta($order_id,'_billing_email',true);
+      
+      $zipCode   = get_post_meta($order_id,'_shipping_postcode',true); $zipCode = preg_replace("/[^0-9]/","",$zipCode);
+      
+      $street    = get_post_meta($order_id,'_shipping_address_1',true). ' ' .get_post_meta($order_id,'_shipping_address_2',true);
+      $number    = get_post_meta($order_id,'_shipping_number',true);
+      $district  = get_post_meta($order_id,'_shipping_neighborhood',true);
+      $city      = get_post_meta($order_id,'_shipping_city',true);
+      $state     = get_post_meta($order_id,'_shipping_state',true);
+
+      $sender = ['type'    =>"{$type}",
+                 'name'    =>"{$name}",
+                 'document'=>"{$document2}", //declaracao_conteudo
+                 'phone'   =>"{$phone}",
+                 'email'   =>"{$email}",
+                 'zipCode' =>"{$zipCode}",
+                 'street'  =>"{$street}",
+                 'number'  =>"{$number}",
+                 'district'=>"{$district}",
+                 'city'    =>"{$city}",
+                 'state'   =>"{$state}"]; 
+ 
+	  $additionalServices = ['deliveryNeighbor' => ['active'=> false]];
+  
+      $ticket = ['calculatorId' => "{$calculatorId}", 
+                 'content'      => substr($content,0,29),
+                 'alias'        => "{$alias}",
+                 'document'     => "{$document}",
+                 'docs'         => ['declarationItens'=>$declarationItens],
+                 'sender'       => $sender,
+                 'additionalServices' => $additionalServices];
+           
+      $token   = isw_get_item_meta($order_id,'_token');
+      $sandbox = isw_get_item_meta($order_id,'_enviosimples_sandbox');
+      
+      $envio = new enviosimples($token,$sandbox);
+            
+      $etiqueta = $envio->call_curl('POST','/es-tickets/generate-ticket',$ticket);
+      
+      if(is_object($etiqueta)){
+         if(isset($etiqueta->data->ticket->code)){
+            //update_post_meta($order_id, "{$meta_key}", $etiqueta->data->ticket->code.'');    
+            update_post_meta($order_id, "{$meta_key}", 'Emitida');    
+         }else{
+			update_post_meta($order_id, "{$meta_key}", 'Falha');
+		 }
+      }else{
+         //não faz nada 
+      }
+   }   
+}
+function isw_get_item_meta($order_id,$meta_key){
+     global $wpdb;
+     
+     $prefix     = $wpdb->prefix;
+     
+     $return = false;
+     
+     $sql = "SELECT itemmeta.meta_value AS value 
+              FROM  {$prefix}woocommerce_order_items items, 
+                    {$prefix}woocommerce_order_itemmeta itemmeta 
+             WHERE  items.order_item_id = itemmeta.order_item_id AND 
+                    items.order_item_type = 'shipping'           AND 
+                    items.order_id    =  {$order_id}             AND 
+                    itemmeta.meta_key = '{$meta_key}'";
+
+
+      $rs = $wpdb->get_results($sql);
+      foreach($rs as $linha){
+         $return = $linha->value;
+      }
+      return $return;
+}
+function isw_get_item_meta_id($order_item_id,$meta_key){
+     global $wpdb;
+     $prefix     = $wpdb->prefix;
+     
+     $return = false;
+     
+     $sql = "SELECT itemmeta.meta_value AS value 
+              FROM  {$prefix}woocommerce_order_itemmeta itemmeta 
+             WHERE  itemmeta.order_item_id ={$order_item_id}    AND 
+                    itemmeta.meta_key = '{$meta_key}'";
+                    
+      $rs = $wpdb->get_results($sql);
+      foreach($rs as $linha){
+         $return = $linha->value;
+      }
+      return $return;
+}
+//INTEGRA SW
+add_filter( 'manage_edit-shop_order_columns', 'isw_column_ticket' );
+function isw_column_ticket( $columns ) {
+	$new_columns = ( is_array( $columns ) ) ? $columns : array();
+   
+  	unset( $new_columns[ 'order_actions' ] );
+	
+  	//edit this for your column(s)
+  	//all of your columns will be added before the actions column
+  	$new_columns['isw_ticket'] = 'Etiqueta';
+  	
+	
+  	//stop editing
+  	$new_columns[ 'order_actions' ] = $columns[ 'order_actions' ];
+   
+  	return $new_columns;
+}
+
+add_action( 'manage_shop_order_posts_custom_column', 'isw_column_ticket_values', 2 );
+function isw_column_ticket_values( $column ) {
+	global $post;
+   
+	$data = get_post_meta( $post->ID,'_ticket_code',true ).'';
+	
+	//start editing, I was saving my fields for the orders as custom post meta
+	//if you did the same, follow this code
+	
+	if ( $column == 'isw_ticket' ) {
+		echo $data;
+	}
+
+}
+   
+
+/************************************************************************/
+/************************************************************************/
+/************************************************************************/
+/************************************************************************/
+/************************************************************************/
 
 add_filter( 'woocommerce_shipping_methods', 'add_woocommerce_enviosimples' );
-
 add_action('wp_enqueue_scripts','enviosimples_enqueue_user_scripts');
 add_action('admin_enqueue_scripts','enviosimples_enqueue_user_scripts');
 function enviosimples_enqueue_user_scripts(){
@@ -420,22 +647,27 @@ function enviosimples_shipping_forecast_on_product_page(){
 
 	$metodos_de_entrega = enviosimples_get_metodos_de_entrega($target_zip_code);
 
+      
+      
 	if (count($metodos_de_entrega)==0) return;
 
-	foreach($metodos_de_entrega as $metodo){
+	for($i=0;$i<20;$i++){
+      
+      $metodo = $metodos_de_entrega[$i];
+
 		if (is_object($metodo) && get_class($metodo)=="WC_woocommerce_enviosimples"){
 			$enviosimples_class = $metodo;
 			break;
 		}
 	}	
-
 	$enviosimples_class->forecast_shipping();
 	
 }
 add_action('woocommerce_after_add_to_cart_form','enviosimples_shipping_forecast_on_product_page',50);
 
 function enviosimples_get_metodos_de_entrega($cep_destinatario) {
-
+   
+         
 	$metodos_de_entrega = [];
 
 	$delivery_zones = WC_Shipping_Zones::get_zones();
@@ -454,21 +686,19 @@ function enviosimples_get_metodos_de_entrega($cep_destinatario) {
 
         // Temos. Temos algum dos métodos de entrega suportados lá?
 	foreach ($delivery_zones as $key_delivery_zone => $delivery_zone) {
-
-            // Temos efetivamente algum Shipping Method cadastrado nesta Delivery Zone?
+      // Temos efetivamente algum Shipping Method cadastrado nesta Delivery Zone?
 		if (count($delivery_zone['shipping_methods']) < 1) {
 			continue;			
 		}
-
-            // O CEP informado participa desta delivery zone?
+      
+      // O CEP informado participa desta delivery zone?
 		$cep_destinatario_permitido = false;
 		foreach ($delivery_zone['zone_locations'] as $zone_location) {
-			switch ($zone_location->type) {
+         switch ($zone_location->type) {
 				case 'country':
-                            // Pais: Brasil
-				if ($zone_location->code == 'BR')
-					$cep_destinatario_permitido = true;
-				break;
+               if ($zone_location->code == 'BR')
+                  $cep_destinatario_permitido = true;
+            break;
 				case 'postcode':
                         // CEPs Específicos
                         // Vamos dar um foreach nas linhas
@@ -509,40 +739,10 @@ function enviosimples_get_metodos_de_entrega($cep_destinatario) {
 				}
 				break;
 			}
-
 		}
-
-            // Loop pelas shipping zones
+      // Loop pelas shipping zones
 		foreach ($delivery_zone['shipping_methods'] as $key => $shipping_method) {
-
-   //              // Retirar no local?
-			// if (get_class($shipping_method) == 'WC_Shipping_Local_Pickup') {
-
-			// 		if ($shipping_method->enabled == 'yes' && $cep_destinatario_permitido) {
-			// 			$metodos_de_entrega['retirar_no_local'] = 'sim';
-			// 		}
-
-			// 	continue;
-			// }
-
-   //              // Frete Grátis
-			// if (get_class($shipping_method) == 'WC_Shipping_Free_Shipping') {
-			// 	if ($this->options['exibir_frete_gratis'] == 'true') {
-			// 		if ($cep_destinatario_permitido) {
-			// 			if (empty($shipping_method->requires)) {
-			// 				$metodos_de_entrega['frete_gratis'] = 'sim';
-			// 			} elseif ($shipping_method->requires == 'min_amount' || $shipping_method->requires == 'either') {
-			// 				if (is_numeric($shipping_method->min_amount)) {
-			// 					if ($preco_produto > $shipping_method->min_amount) {
-			// 						$metodos_de_entrega['frete_gratis'] = 'sim';
-			// 					}
-			// 				}
-			// 			}
-			// 		}
-			// 	}
-			// }
-
-                // O método atual é permitido?
+         // O método atual é permitido?
 			if (get_class($shipping_method) ==  "WC_woocommerce_enviosimples") {
                     // O método atual está habilitado?
 				if ($shipping_method->enabled == 'yes') {
@@ -551,14 +751,13 @@ function enviosimples_get_metodos_de_entrega($cep_destinatario) {
 			}
 		}
 	}
-
 	return $metodos_de_entrega;
-
-
 }
 
 function enviosimples_is_cep_from_state($cep, $estado) {
 
+         
+   return true;
         $cep = substr($cep, 0, 5); // 5 primeiros dígitos
         $cep = (int)$cep;
 
@@ -681,22 +880,6 @@ function enviosimples_is_cep_from_state($cep, $estado) {
         }
     }
 
-//****************************************************************************************
-// add_action( 'woocommerce_after_shipping_rate', 'enviosimples_shipping_delivery_estimate');
 
 
-// function enviosimples_shipping_delivery_estimate( $shipping_method ) {
-
-// 	$method_name = $shipping_method->get_method_id();	
-// 	if ($method_name !='woocommerce_enviosimples') return;	
-
-// 	$meta_data = $shipping_method->get_meta_data();
-
-// 	$estimate     = isset( $meta_data['_enviosimples_delivery_estimate'] ) ? intval( $meta_data['_enviosimples_delivery_estimate'] ) : 0;
-
-// 	if ( $estimate ) {		
-// 		echo "<p><small>Entrega pelo enviosimples em {$estimate} dias úteis</small></p>";
-// 	}
-// }
-
-    ?>
+?>
