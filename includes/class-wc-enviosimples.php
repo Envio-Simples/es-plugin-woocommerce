@@ -624,9 +624,9 @@ add_action('wp_enqueue_scripts','enviosimples_enqueue_user_scripts');
 add_action('admin_enqueue_scripts','enviosimples_enqueue_user_scripts');
 function enviosimples_enqueue_user_scripts(){
 
-	wp_enqueue_script('auge_jquery_masks',plugins_url()."/woocommerce-enviosimples/assets/jquery.mask.min.js",array(),false,true);
-	wp_enqueue_script('auge_jquery_mask_formats',plugins_url()."/woocommerce-enviosimples/assets/auge_masks.js",array(),false,true);	
-	wp_enqueue_script('enviosimples_scripts',plugins_url()."/woocommerce-enviosimples/assets/enviosimples.js",array(),false,true);	
+	wp_enqueue_script('auge_jquery_masks',plugins_url()."/woocommerce-enviosimples/assets/jquery.mask.min.js",array(),'custom',true);
+	wp_enqueue_script('auge_jquery_mask_formats',plugins_url()."/woocommerce-enviosimples/assets/auge_masks.js",array(),'custom',true);	
+	wp_enqueue_script('enviosimples_scripts',plugins_url()."/woocommerce-enviosimples/assets/enviosimples.js",array(),'custom',true);	
 	return;
 }
 
