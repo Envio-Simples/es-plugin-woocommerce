@@ -78,7 +78,7 @@ class Es_Plugin_Woocommerce {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
+		$this->define_everywhere_hooks();
 	}
 
 	/**
@@ -166,9 +166,8 @@ class Es_Plugin_Woocommerce {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_admin_hooks() {
+	private function define_everywhere_hooks() {
 		add_action('woocommerce_shipping_init','woocommerce_enviosimples_init');
-		$plugin_admin = new Es_Plugin_Woocommerce_Admin( $this->get_plugin_name(), $this->get_version() );
 		$label = new Es_Plugin_Woocommerce_Label();
 		$main = new Es_Plugin_Woocommerce_main();
 		$this->loader->add_action( 'woocommerce_order_status_processing', $main, 'isw_woo_update_ticket', 10, 1 );
@@ -179,10 +178,19 @@ class Es_Plugin_Woocommerce {
 		$this->loader->add_action( 'admin_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
 		$this->loader->add_action( 'woocommerce_after_add_to_cart_form', $main, 'enviosimples_shipping_forecast_on_product_page',50);
 		$this->loader->add_filter( 'manage_edit-shop_order_columns', $main, 'isw_column_ticket');
-
-		//$this->loader->add_action( 'woocommerce_shipping_init', $main, 'woocommerce_enviosimples_init');
-
 		$this->loader->add_action( 'woocommerce_order_status_processing', $label, 'enviosimples_order_processing' );
+	}
+	/**
+	 * Register all of the hooks related to the admin area functionality
+	 * of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_admin_hooks() {
+		
+		$plugin_admin = new Es_Plugin_Woocommerce_Admin( $this->get_plugin_name(), $this->get_version() );
+
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
@@ -196,22 +204,8 @@ class Es_Plugin_Woocommerce {
 	 * @access   private
 	 */
 	private function define_public_hooks() {
-		add_action('woocommerce_shipping_init','woocommerce_enviosimples_init');
 		$plugin_public = new Es_Plugin_Woocommerce_Public( $this->get_plugin_name(), $this->get_version() );
-		$label = new Es_Plugin_Woocommerce_Label();
 
-		$main = new Es_Plugin_Woocommerce_main();
-		$this->loader->add_action( 'woocommerce_order_status_processing', $main, 'isw_woo_update_ticket', 10, 1 );
-		$this->loader->add_action( 'woocommerce_order_status_completed', $main, 'isw_woo_update_ticket', 10, 1 );
-		$this->loader->add_action( 'manage_shop_order_posts_custom_column', $main, 'isw_column_ticket_values', 2 );
-		$this->loader->add_filter( 'woocommerce_shipping_methods', $main, 'add_woocommerce_enviosimples');
-		$this->loader->add_action( 'wp_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
-		$this->loader->add_action( 'admin_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
-		$this->loader->add_action( 'woocommerce_after_add_to_cart_form', $main, 'enviosimples_shipping_forecast_on_product_page',50);
-		$this->loader->add_filter( 'manage_edit-shop_order_columns', $main, 'isw_column_ticket');
-		//$this->loader->add_action( 'woocommerce_shipping_init', $main, 'woocommerce_enviosimples_init');
-
-		$this->loader->add_action( 'woocommerce_order_status_processing', $label, 'enviosimples_order_processing' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 

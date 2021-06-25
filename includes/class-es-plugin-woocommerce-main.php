@@ -41,9 +41,9 @@ class Es_Plugin_Woocommerce_main
         $ticket_code = get_post_meta($order_id, "{$meta_key}", true);
         if (!$ticket_code) { //Senão existe gera uma etiqueta 
 
-            $calculatorId = isw_get_item_meta($order_id, '_calculatorId');
+            $calculatorId = $this->isw_get_item_meta($order_id, '_calculatorId');
             $content      = 'PRODUTOS';
-            $alias        = isw_get_item_meta($order_id, '_type_send');
+            $alias        = $this->isw_get_item_meta($order_id, '_type_send');
             $document     = 'declaracao_conteudo';
 
             //item_comprados 
@@ -57,16 +57,16 @@ class Es_Plugin_Woocommerce_main
             $declarationItens = [];
             foreach ($rs as $linha) {
                 $order_item_id = $linha->order_item_id;
-                $quantidade = isw_get_item_meta_id($order_item_id, '_qty');
+                $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
 
                 for ($i = 0; $i < (int)$quantidade; $i++) {
-                    $item = get_the_title(isw_get_item_meta_id($order_item_id, '_product_id'));
+                    $item = get_the_title($this->isw_get_item_meta_id($order_item_id, '_product_id'));
 
                     $content = $item . ' e etc';
 
-                    $subtotal   = isw_get_item_meta_id($order_item_id, '_line_subtotal');
+                    $subtotal   = $this->isw_get_item_meta_id($order_item_id, '_line_subtotal');
 
-                    $quantidade = isw_get_item_meta_id($order_item_id, '_qty');
+                    $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
 
                     $value = $subtotal / $quantidade;
 
@@ -143,8 +143,8 @@ class Es_Plugin_Woocommerce_main
                 'additionalServices' => $additionalServices
             ];
 
-            $token   = isw_get_item_meta($order_id, '_token');
-            $sandbox = isw_get_item_meta($order_id, '_enviosimples_sandbox');
+            $token   = $this->isw_get_item_meta($order_id, '_token');
+            $sandbox = $this->isw_get_item_meta($order_id, '_enviosimples_sandbox');
 
             $envio = new Es_Plugin_Woocommerce_API($token, $sandbox);
 
