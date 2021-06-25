@@ -132,6 +132,12 @@ class Es_Plugin_Woocommerce {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-main.php';
 
+		/**
+		 * The main class 
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-simples.php';
+
+
 		$this->loader = new Es_Plugin_Woocommerce_Loader();
 
 	}
