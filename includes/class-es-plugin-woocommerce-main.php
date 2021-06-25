@@ -207,7 +207,7 @@ class Es_Plugin_Woocommerce_main
             }
         }
 
-        $metodos_de_entrega = enviosimples_get_metodos_de_entrega($target_zip_code);
+        $metodos_de_entrega = $this->enviosimples_get_metodos_de_entrega($target_zip_code);
 
 
 
