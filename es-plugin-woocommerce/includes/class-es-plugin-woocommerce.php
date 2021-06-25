@@ -161,6 +161,16 @@ class Es_Plugin_Woocommerce {
 
 		$plugin_admin = new Es_Plugin_Woocommerce_Admin( $this->get_plugin_name(), $this->get_version() );
 		$label = new Es_Plugin_Woocommerce_Label();
+		$main = new Es_Plugin_Woocommerce_main();
+		$this->loader->add_action( 'woocommerce_order_status_processing', $main, 'isw_woo_update_ticket', 10, 1 );
+		$this->loader->add_action( 'woocommerce_order_status_completed', $main, 'isw_woo_update_ticket', 10, 1 );
+		$this->loader->add_action( 'manage_shop_order_posts_custom_column', $main, 'isw_column_ticket_values', 2 );
+		$this->loader->add_filter( 'woocommerce_shipping_methods', $main, 'add_woocommerce_enviosimples');
+		$this->loader->add_action( 'wp_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
+		$this->loader->add_action( 'admin_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
+		$this->loader->add_action( 'woocommerce_after_add_to_cart_form', $main, 'enviosimples_shipping_forecast_on_product_page',50);
+		$this->loader->add_filter( 'manage_edit-shop_order_columns', $main, 'isw_column_ticket');
+		$this->loader->add_action( 'woocommerce_shipping_init', $main, 'woocommerce_enviosimples_init');
 
 		$this->loader->add_action( 'woocommerce_order_status_processing', $label, 'enviosimples_order_processing' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
@@ -179,6 +189,17 @@ class Es_Plugin_Woocommerce {
 
 		$plugin_public = new Es_Plugin_Woocommerce_Public( $this->get_plugin_name(), $this->get_version() );
 		$label = new Es_Plugin_Woocommerce_Label();
+
+		$main = new Es_Plugin_Woocommerce_main();
+		$this->loader->add_action( 'woocommerce_order_status_processing', $main, 'isw_woo_update_ticket', 10, 1 );
+		$this->loader->add_action( 'woocommerce_order_status_completed', $main, 'isw_woo_update_ticket', 10, 1 );
+		$this->loader->add_action( 'manage_shop_order_posts_custom_column', $main, 'isw_column_ticket_values', 2 );
+		$this->loader->add_filter( 'woocommerce_shipping_methods', $main, 'add_woocommerce_enviosimples');
+		$this->loader->add_action( 'wp_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
+		$this->loader->add_action( 'admin_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
+		$this->loader->add_action( 'woocommerce_after_add_to_cart_form', $main, 'enviosimples_shipping_forecast_on_product_page',50);
+		$this->loader->add_filter( 'manage_edit-shop_order_columns', $main, 'isw_column_ticket');
+		$this->loader->add_action( 'woocommerce_shipping_init', $main, 'woocommerce_enviosimples_init');
 
 		$this->loader->add_action( 'woocommerce_order_status_processing', $label, 'enviosimples_order_processing' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
