@@ -1,12 +1,6 @@
 <?php
 
 /**
- * The plugin bootstrap file
- *
- * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
- * registers the activation and deactivation functions, and defines a function
- * that starts the plugin.
  *
  * @link              https://github.com/Envio-Simples/es-plugin-woocommerce
  * @since             1.0.0
@@ -15,7 +9,7 @@
  * @wordpress-plugin
  * Plugin Name:       WooCommerce Envio Simples 
  * Plugin URI:        Thales Matoso, srgoogle23
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Description:       Adds Envio Simples shipping methods to your WooCommerce store.
  * Version:           2.0.0
  * Author:            https://github.com/Envio-Simples/es-plugin-woocommerce
  * Author URI:        https://github.com/Envio-Simples/es-plugin-woocommerce
