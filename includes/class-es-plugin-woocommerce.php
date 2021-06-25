@@ -124,10 +124,13 @@ class Es_Plugin_Woocommerce {
 
 		/**
 		 * The class responsible for all functionalits in orders
-		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-loader.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-label.php';
 
+		/**
+		 * The main class 
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-main.php';
 
 		$this->loader = new Es_Plugin_Woocommerce_Loader();
 
