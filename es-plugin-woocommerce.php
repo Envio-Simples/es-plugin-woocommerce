@@ -39,6 +39,11 @@ define('WC_ENVIOSIMPLES_DIR',plugin_dir_path(__FILE__));
  */
 define('WC_ENVIOSIMPLES_REQUIRED_VERSION','4.9.5');
 
+/**
+ * Currently plugin URL.
+ */
+define('WC_ENVIOSIMPLES_URL',plugin_dir_url( __FILE__ ));
+
 
 /**
  * The code that runs during plugin activation.

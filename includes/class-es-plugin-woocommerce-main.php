@@ -1,6 +1,7 @@
 <?php
 
 require_once "class-es-plugin-woocommerce-api.php";
+require_once "class-es-plugin-woocommerce-simples.php";
 
 /**
  * Main Class of Plugin
@@ -184,9 +185,9 @@ class Es_Plugin_Woocommerce_main
 
     public function enviosimples_enqueue_user_scripts()
     {
-        wp_enqueue_script('auge_jquery_masks', plugins_url() . "/es-plugin-woocommerce/assets/jquery.mask.min.js", array(), 'custom', true);
-        wp_enqueue_script('auge_jquery_mask_formats', plugins_url() . "/es-plugin-woocommerce/assets/auge_masks.js", array(), 'custom', true);
-        wp_enqueue_script('enviosimples_scripts', plugins_url() . "/es-plugin-woocommerce/assets/enviosimples.js", array(), 'custom', true);
+        wp_enqueue_script('auge_jquery_masks', WC_ENVIOSIMPLES_URL . "public/js/jquery.mask.min.js", array(), 'custom', true);
+        wp_enqueue_script('auge_jquery_mask_formats', WC_ENVIOSIMPLES_URL . "public/js/auge_masks.js", array(), 'custom', true);
+        wp_enqueue_script('enviosimples_scripts', WC_ENVIOSIMPLES_URL . "public/js/enviosimples.js", array(), 'custom', true);
         return;
     }
 
