@@ -208,15 +208,14 @@ class Es_Plugin_Woocommerce_main
         }
 
         $metodos_de_entrega = $this->enviosimples_get_metodos_de_entrega($target_zip_code);
-
-
+        
+        
 
         if (count($metodos_de_entrega) == 0) return;
 
-        for ($i = 0; $i < 20; $i++) {
-
-            $metodo = $metodos_de_entrega[$i];
-
+        foreach($metodos_de_entrega as $k=>$v)
+        {
+            $metodo = $v;
             if (is_object($metodo) && get_class($metodo) == "WC_woocommerce_enviosimples") {
                 $enviosimples_class = $metodo;
                 break;
@@ -312,7 +311,7 @@ class Es_Plugin_Woocommerce_main
                         // Estados específicos
                         $tmp = explode(':', $zone_location->code);
                         if ($tmp[0] == 'BR') {
-                            if (enviosimples_is_cep_from_state($cep_destinatario, $tmp[1])) {
+                            if ($this->enviosimples_is_cep_from_state($cep_destinatario, $tmp[1])) {
                                 $cep_destinatario_permitido = true;
                             }
                         }
