@@ -5,7 +5,7 @@
  *
  * This file is used to markup the public-facing aspects of the plugin.
  *
- * @link       https://github.com/Envio-Simples/es-plugin-woocommerce
+ * @link       https://github.com/srgoogle23/es-plugin-woocommerce
  * @since      1.0.0
  *
  * @package    Es_Plugin_Woocommerce

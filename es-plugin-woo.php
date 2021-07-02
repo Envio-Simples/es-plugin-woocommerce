@@ -2,17 +2,17 @@
 
 /**
  *
- * @link              https://github.com/Envio-Simples/es-plugin-woocommerce
+ * @link              https://github.com/srgoogle23/es-plugin-woocommerce
  * @since             1.0.0
  * @package           Es_Plugin_Woocommerce
  *
  * @wordpress-plugin
  * Plugin Name:       WooCommerce Envio Simples 
- * Plugin URI:        Thales Matoso, srgoogle23
+ * Plugin URI:        https://github.com/srgoogle23/es-plugin-woocommerce
  * Description:       Adds Envio Simples shipping methods to your WooCommerce store.
  * Version:           2.0.0
- * Author:            https://github.com/Envio-Simples/es-plugin-woocommerce
- * Author URI:        https://github.com/Envio-Simples/es-plugin-woocommerce
+ * Author:            srgoogle23
+ * Author URI:        https://github.com/srgoogle23/es-plugin-woocommerce
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       es-plugin-woocommerce

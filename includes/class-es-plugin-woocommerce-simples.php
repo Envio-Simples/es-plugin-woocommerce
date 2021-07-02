@@ -5,7 +5,7 @@ require_once "class-es-plugin-woocommerce-api.php";
 /**
  * Main Class of Plugin
  *
- * @link       https://github.com/Envio-Simples/es-plugin-woocommerce
+ * @link       https://github.com/srgoogle23/es-plugin-woocommerce
  * @since      1.0.0
  *
  * @package    Es_Plugin_Woocommerce
@@ -18,7 +18,7 @@ require_once "class-es-plugin-woocommerce-api.php";
  * @since      1.0.0
  * @package    Es_Plugin_Woocommerce
  * @subpackage Es_Plugin_Woocommerce/includes
- * @author     https://github.com/Envio-Simples/es-plugin-woocommerce <contato@ecomd.com.br>
+ * @author     https://github.com/srgoogle23/es-plugin-woocommerce <contato@ecomd.com.br>
  */
 
 
