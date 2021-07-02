@@ -2,20 +2,20 @@
 
 /**
  *
- * @link              https://github.com/srgoogle23/es-plugin-woocommerce
+ * @link              https://github.com/srgoogle23/es-plugin-woo
  * @since             1.0.0
- * @package           Es_Plugin_Woocommerce
+ * @package           Es_Plugin_Woo
  *
  * @wordpress-plugin
- * Plugin Name:       WooCommerce Envio Simples 
- * Plugin URI:        https://github.com/srgoogle23/es-plugin-woocommerce
- * Description:       Adds Envio Simples shipping methods to your WooCommerce store.
+ * Plugin Name:       Envio Simples
+ * Plugin URI:        https://github.com/srgoogle23/es-plugin-woo
+ * Description:       Adds Envio Simples shipping methods to your store.
  * Version:           2.0.0
  * Author:            srgoogle23
- * Author URI:        https://github.com/srgoogle23/es-plugin-woocommerce
+ * Author URI:        https://github.com/srgoogle23/es-plugin-woo
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       es-plugin-woocommerce
+ * Text Domain:       es-plugin-woo
  * Domain Path:       /languages
  */
 
@@ -26,6 +26,8 @@ if ( ! defined( 'WPINC' ) ) {
 
 /**
  * Currently plugin version.
+ * Start at version 1.0.0 and use SemVer - https://semver.org
+ * Rename this for your plugin and update it as you release new versions.
  */
 define( 'ES_PLUGIN_WOOCOMMERCE_VERSION', '2.0.0' );
 
@@ -44,33 +46,32 @@ define('WC_ENVIOSIMPLES_REQUIRED_VERSION','4.9.5');
  */
 define('WC_ENVIOSIMPLES_URL',plugin_dir_url( __FILE__ ));
 
-
 /**
  * The code that runs during plugin activation.
- * This action is documented in includes/class-es-plugin-woocommerce-activator.php
+ * This action is documented in includes/class-es-plugin-woo-activator.php
  */
-function activate_es_plugin_woocommerce() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-es-plugin-woocommerce-activator.php';
-	Es_Plugin_Woocommerce_Activator::activate();
+function activate_es_plugin_woo() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-es-plugin-woo-activator.php';
+	Es_Plugin_Woo_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-es-plugin-woocommerce-deactivator.php
+ * This action is documented in includes/class-es-plugin-woo-deactivator.php
  */
-function deactivate_es_plugin_woocommerce() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-es-plugin-woocommerce-deactivator.php';
-	Es_Plugin_Woocommerce_Deactivator::deactivate();
+function deactivate_es_plugin_woo() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-es-plugin-woo-deactivator.php';
+	Es_Plugin_Woo_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_es_plugin_woocommerce' );
-register_deactivation_hook( __FILE__, 'deactivate_es_plugin_woocommerce' );
+register_activation_hook( __FILE__, 'activate_es_plugin_woo' );
+register_deactivation_hook( __FILE__, 'deactivate_es_plugin_woo' );
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-es-plugin-woocommerce.php';
+require plugin_dir_path( __FILE__ ) . 'includes/class-es-plugin-woo.php';
 
 /**
  * Begins execution of the plugin.
@@ -81,10 +82,10 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-es-plugin-woocommerce.php'
  *
  * @since    1.0.0
  */
-function run_es_plugin_woocommerce() {
+function run_es_plugin_woo() {
 
-	$plugin = new Es_Plugin_Woocommerce();
+	$plugin = new Es_Plugin_Woo();
 	$plugin->run();
 
 }
-run_es_plugin_woocommerce();
+run_es_plugin_woo();

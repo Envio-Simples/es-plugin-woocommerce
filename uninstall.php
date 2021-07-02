@@ -19,10 +19,10 @@
  * For more information, see the following discussion:
  * https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate/pull/123#issuecomment-28541913
  *
- * @link       https://github.com/srgoogle23/es-plugin-woocommerce
+ * @link       https://github.com/srgoogle23/es-plugin-woo
  * @since      1.0.0
  *
- * @package    Es_Plugin_Woocommerce
+ * @package    Es_Plugin_Woo
  */
 
 // If uninstall not called from WordPress, then exit.
