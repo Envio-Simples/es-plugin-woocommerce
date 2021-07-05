@@ -138,8 +138,6 @@ function woocommerce_enviosimples_init()
 
                     $product = $item['data'];
 
-                    //print_r($product); exit;
-
                     $height = (int)preg_replace("/[^0-9]/", "", $product->get_height());
                     $width  = (int)preg_replace("/[^0-9]/", "", $product->get_width());
                     $length = (int)preg_replace("/[^0-9]/", "", $product->get_length());
@@ -219,10 +217,7 @@ function woocommerce_enviosimples_init()
             {
                 global $product;
                 global $woocommerce;
-
-
-                // echo "<pre>";print_r($product);echo "</pre>";				
-                // echo "<pre>";print_r($this->instance_settings);echo "</pre>";
+				
                 if ($this->instance_settings['enabled'] != 'yes') return;
 
                 if ($this->instance_settings['show_estimate_on_product_page'] != 'yes') return;
@@ -242,9 +237,16 @@ function woocommerce_enviosimples_init()
                 if ($woocommerce->cart->find_product_in_cart($product_cart_id)) {
                     $quantity = $cart[$product_cart_id]['quantity'];
                 }
-                if ($quantity <= 0) {
-                    $quantity = 1;
-                }
+				if(is_product())
+				{
+					$quantity = $_POST['es_qt_product'];	
+				}
+				else
+				{
+					if ($quantity <= 0) {
+						$quantity = 1;
+					}
+				}
 
                 $volume = [];
                 $volume['length'] = wc_get_dimension($length, 'cm'); //comprimento 
@@ -301,8 +303,10 @@ function woocommerce_enviosimples_init()
                     </form>
                 </div>
             </div>";
-
-
+		if(is_product())
+		{
+			echo '<script src='.WC_ENVIOSIMPLES_URL . 'public/js/product_qty.js></script>';
+		}
                 if (trim($target_zip_code) == "") return;
 
                 $target_zip_code = preg_replace("/[^0-9]/", "", $target_zip_code);

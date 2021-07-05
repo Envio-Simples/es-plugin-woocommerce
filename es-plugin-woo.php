@@ -1,4 +1,4 @@
-W<?php
+<?php
 
 /**
  *
@@ -7,15 +7,15 @@ W<?php
  * @package           Es_Plugin_Woo
  *
  * @wordpress-plugin
- * Plugin Name:       WC Envio Simples
+ * Plugin Name:       Envio Simples
  * Plugin URI:        https://github.com/srgoogle23/es-plugin-woo
- * Description:       Adds WC Envio Simples shipping methods to your store.
+ * Description:       Adds Envio Simples shipping methods to your store.
  * Version:           2.0.0
  * Author:            srgoogle23
- * Author URI:        https://leonardoliveira.com/
+ * Author URI:        https://github.com/srgoogle23/es-plugin-woo
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       wc-envio-simples
+ * Text Domain:       es-plugin-woo
  * Domain Path:       /languages
  */
 
