@@ -49,8 +49,9 @@ function woocommerce_enviosimples_init()
                 $this->init_form_fields();
                 $this->init_instance_settings();
                 add_action('woocommerce_update_options_shipping_' . $this->id, array($this, 'process_admin_options'));
+				
             }
-
+						
             public function init_form_fields()
             {
 
@@ -241,13 +242,10 @@ function woocommerce_enviosimples_init()
 				{
 					$quantity = $_POST['es_qt_product'];	
 				}
-				else
-				{
-					if ($quantity <= 0) {
-						$quantity = 1;
-					}
+				if ($quantity <= 0) {
+					$quantity = 1;
 				}
-
+				
                 $volume = [];
                 $volume['length'] = wc_get_dimension($length, 'cm'); //comprimento 
                 $volume['width'] = wc_get_dimension($width, 'cm'); //largura 
@@ -303,10 +301,7 @@ function woocommerce_enviosimples_init()
                     </form>
                 </div>
             </div>";
-		if(is_product())
-		{
-			echo '<script src='.WC_ENVIOSIMPLES_URL . 'public/js/product_qty.js></script>';
-		}
+
                 if (trim($target_zip_code) == "") return;
 
                 $target_zip_code = preg_replace("/[^0-9]/", "", $target_zip_code);

@@ -174,6 +174,8 @@ class Es_Plugin_Woo {
 		add_action('woocommerce_shipping_init','woocommerce_enviosimples_init');
 		$label = new Es_Plugin_Woo_Label();
 		$main = new Es_Plugin_Woo_main();
+		
+		$this->loader->add_filter( 'wp', $main, 'envio_simples_set_product_script');
 		$this->loader->add_action( 'woocommerce_order_status_processing', $main, 'isw_woo_update_ticket', 10, 1 );
 		$this->loader->add_action( 'woocommerce_order_status_completed', $main, 'isw_woo_update_ticket', 10, 1 );
 		$this->loader->add_action( 'manage_shop_order_posts_custom_column', $main, 'isw_column_ticket_values', 2 );

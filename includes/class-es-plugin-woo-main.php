@@ -33,6 +33,14 @@ class Es_Plugin_Woo_main
         return;
     }
 
+	public function envio_simples_set_product_script()
+	{
+		if(is_product())
+		{
+			wp_enqueue_script('enviosimples_product', WC_ENVIOSIMPLES_URL . "public/js/product_qty.js", array(), 'custom', true);
+		}
+	}
+	
     public function isw_woo_update_ticket($order_id)
     {
         global $wpdb;
