@@ -13,7 +13,7 @@ class enviosimples{
 
     private $enviosimples_production_url = "https://api2.enviosimples.com.br";
     private $enviosimples_sandbox_url    = "https://sandbox-api2.enviosimples.com.br";
-    private $esAppKey = '72jyDaLhTegEBrj9UCdJwO3cAGfbqvFK';
+    private $esAppKey = "72jyDaLhTegEBrj9UCdJwO3cAGfbqvFK";
 
 	public function __construct($key = '', $sandbox = 'no'){
       
@@ -29,7 +29,7 @@ class enviosimples{
         $headers = [
             'Content-Type: application/json',
             'Accept-Encoding: gzip, deflate',
-            'es-app-key': this->$esAppKey
+            'es-app-key:' this->$esAppKey
         ];	
 
         if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$headers',$headers);}
