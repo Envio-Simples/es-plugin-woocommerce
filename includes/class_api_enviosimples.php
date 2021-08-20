@@ -29,7 +29,7 @@ class enviosimples{
         $headers = [
             'Content-Type: application/json',
             'Accept-Encoding: gzip, deflate',
-            'es-app-key:' $this->esAppKey
+            'es-app-key: 72jyDaLhTegEBrj9UCdJwO3cAGfbqvFK'
         ];	
 
         if($this->log_isw){ $this->isw_log_envios('call_curl($type,$url,$parameters)','$headers',$headers);}
