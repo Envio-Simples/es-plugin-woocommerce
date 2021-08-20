@@ -33,7 +33,7 @@ class Es_Plugin_Woocommerce_API
     private $enviosimples_url = "";
     private $enviosimples_production_url = "https://api2.enviosimples.com.br";
     private $enviosimples_sandbox_url    = "https://sandbox-api2.enviosimples.com.br";
-    private $esAppKey = "72jyDaLhTegEBrj9UCdJwO3cAGfbqvFK"
+    private $esAppKey = "72jyDaLhTegEBrj9UCdJwO3cAGfbqvFK";
 
     public function __construct($key = '', $sandbox = 'no')
     {
