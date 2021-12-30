@@ -50,7 +50,6 @@ class Es_Plugin_Woocommerce_API
     {
         $headers = [
             'Content-Type: application/json',
-            'Accept-Encoding: gzip, deflate',
             "es-app-key:{$this->esAppKey}"
         ];
         
@@ -83,6 +82,7 @@ class Es_Plugin_Woocommerce_API
         $return = curl_exec($ch);
 
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	
 
         if ($status == 0) {
             if ($this->log_isw) {
@@ -160,15 +160,14 @@ class Es_Plugin_Woocommerce_API
             'reverse'        => "{$reverse}",
             'volumes'        => $this->volumes
         ];
-
-
-        //print_r($data); exit;
+     
 
         if (trim($this->key) <> "") {
             $data['key'] = $this->key;
         }
 
-        $return = $this->call_curl('POST', '/es-calculator/calculator-v2', $data);
+        $return = $this->call_curl('POST', '/es-calculator/calculator/'.$this->key.'', $data);
+
 
         if (isset($return->error)) {
             return;
@@ -176,11 +175,15 @@ class Es_Plugin_Woocommerce_API
 
         $calculatorId = $return->data->calculatorId;
 
+   
         $rates = array();
+
 
         foreach ($return->data->prices->valid as $rate) {
             $rates['rate'][] = $rate;
         }
+
+
 
         if ($this->log_isw) {
             $this->isw_log_envios('calculate_shipping', '$rates', $rates);
@@ -221,7 +224,7 @@ class Es_Plugin_Woocommerce_API
         curl_close($ch);
         $rs = json_decode($result);
 
-        $codigoIbgeCobranca = false; // Palhoça SC
+        $codigoIbgeCobranca = false; //
 
         if (isset($rs->ibge)) {
             $codigoIbgeCobranca = $rs->ibge;
@@ -241,13 +244,6 @@ class Es_Plugin_Woocommerce_API
     public function getVolumes()
     {
         return $this->volumes;
-    }
-
-    public function send_labels($label_data)
-    {
-
-        $return = $this->call_curl('POST', '/es-api/tickets', $label_data);
-        return (object)$return;
     }
 
     private function arrayToParams($array, $prefix = null)
