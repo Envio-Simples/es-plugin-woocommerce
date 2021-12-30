@@ -125,7 +125,8 @@ class Es_Plugin_Woocommerce {
 		/**
 		 * The class responsible for all functionalits in orders
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-label.php';
+	    
+	    //	require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-label.php';
 
 		/**
 		 * The main class 
@@ -167,19 +168,31 @@ class Es_Plugin_Woocommerce {
 	 * @access   private
 	 */
 	private function define_everywhere_hooks() {
+		
+		
+
 		add_action('woocommerce_shipping_init','woocommerce_enviosimples_init');
-		$label = new Es_Plugin_Woocommerce_Label();
+		add_action( 'wp_ajax_nopriv_isw_woo_update_ticket','isw_woo_update_ticket',99999);
+        add_action( 'wp_ajax_isw_woo_update_ticket','isw_woo_update_ticket',99999);
+		
+		
+	
 		$main = new Es_Plugin_Woocommerce_main();
-		$this->loader->add_action( 'woocommerce_order_status_processing', $main, 'isw_woo_update_ticket', 10, 1 );
-		$this->loader->add_action( 'woocommerce_order_status_completed', $main, 'isw_woo_update_ticket', 10, 1 );
-		$this->loader->add_action( 'manage_shop_order_posts_custom_column', $main, 'isw_column_ticket_values', 2 );
+
+		$this->loader->add_action( 'woocommerce_order_status_processing', $main, 'button_generate', 9999, 1 );
+		$this->loader->add_action( 'woocommerce_order_status_completed', $main, 'button_generate', 9999, 1 );
 		$this->loader->add_filter( 'woocommerce_shipping_methods', $main, 'add_woocommerce_enviosimples');
 		$this->loader->add_action( 'wp_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
 		$this->loader->add_action( 'admin_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
 		$this->loader->add_action( 'woocommerce_after_add_to_cart_form', $main, 'enviosimples_shipping_forecast_on_product_page',50);
-		$this->loader->add_filter( 'manage_edit-shop_order_columns', $main, 'isw_column_ticket');
-		$this->loader->add_action( 'woocommerce_order_status_processing', $label, 'enviosimples_order_processing' );
-	}
+		$this->loader->add_filter( 'manage_edit-shop_order_columns', $main, 'isw_column_ticket',9999);
+		$this->loader->add_action( 'admin_head', $main, 'add_custom_action_button_css',999);
+		$this->loader->add_action( 'manage_shop_order_posts_custom_column', $main ,'add_example_column_contents', 999, 2 );
+ 		$this->loader->add_action( 'wp_ajax_nopriv_isw_woo_update_ticket', $main,'isw_woo_update_ticket',9999);
+        $this->loader->add_action( 'wp_ajax_isw_woo_update_ticket',$main, 'isw_woo_update_ticket',9999);
+        $this->loader->add_action('ac/table/actions',$main,'get_ticket',9999);
+		$this->loader->add_action('manage_posts_extra_tablenav',$main,'refresh_page',999);
+	}	
 	/**
 	 * Register all of the hooks related to the admin area functionality
 	 * of the plugin.
