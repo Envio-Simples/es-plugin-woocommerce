@@ -42,15 +42,14 @@ function woocommerce_enviosimples_init()
                 );
                 $this->init();
             }
-            
+
             //Acrescentada a function "save_options" para salvar as opções do plugin toda vez que atualizar o formulário na page do plugin
             public function init()
             {
                 $this->init_form_fields();
                 $this->init_instance_settings();
                 $this->save_options();
-                add_action('woocommerce_update_options_shipping_' . $this->id, array($this, 'process_admin_options'),9999);
-                
+                add_action('woocommerce_update_options_shipping_' . $this->id, array($this, 'process_admin_options'), 9999);
             }
 
             public function init_form_fields()
@@ -61,26 +60,26 @@ function woocommerce_enviosimples_init()
                         'title' => __('Ativo', 'woocommerce_enviosimples'),
                         'type' => 'checkbox',
                         'label' => 'Ativo',
-                        'default' => ''.get_option('es_enable').'',
+                        'default' => '' . get_option('es_enable') . '',
                         'description' => 'Informe se este método de frete é válido'
                     ],
                     'sandbox' => [
                         'title' => __('Ambiente de testes (Sandbox)', 'woocommerce_enviosimples'),
                         'type' => 'checkbox',
                         'label' => 'Ambiente Sandbox',
-                        'default' => ''.get_option('es_sandbox').'',
+                        'default' => '' . get_option('es_sandbox') . '',
                         'description' => 'Informe se está utilizando ambiente de testes (Sandbox)'
                     ],
                     'key' => [
                         'title' => __('Seu token/key de acesso ao enviosimples', 'woocommerce_enviosimples'),
                         'type' => 'text',
-                        'default' => ''.get_option('es_key').'', //f446202be53jNHwbSXKWwRq6U32WIOecK5ddefa3419f
+                        'default' => '' . get_option('es_key') . '', //f446202be53jNHwbSXKWwRq6U32WIOecK5ddefa3419f
                         'description' => 'Caso ainda não tenha seu token, entre em contato com a enviosimples'
                     ],
                     'zipCodeOrigin' => [
                         'title' => __('CEP do Município de origem para cálculo'),
                         'type' => 'number',
-                        'default' => ''.get_option('es_zipcodeorigin').'', //35171099
+                        'default' => '' . get_option('es_zipcodeorigin') . '', //35171099
                         'class' => '',
                         'description' => 'Exemplo: 35171099 - O CEP precisa estar cadastrado como um endereço na plataforma da Envio Simples'
                     ],
@@ -88,62 +87,62 @@ function woocommerce_enviosimples_init()
                         'title' => __('Mostrar prazo de entrega', 'woocommerce_enviosimples'),
                         'type' => 'checkbox',
                         'label' => 'Mostrar prazo de entrega',
-                        'default' => ''.get_option('es_show_delivery_time').'',
+                        'default' => '' . get_option('es_show_delivery_time') . '',
                         'description' => 'Informe se devemos mostrar o prazo de entrega'
                     ],
                     'show_estimate_on_product_page' => [
                         'title' => __('Calcular frete na página do produto', 'woocommerce_enviosimples'),
                         'type' => 'checkbox',
                         'label' => 'Frete na página do produto',
-                        'default' => ''.get_option('es_show_estimate_on_product_page').'',
+                        'default' => '' . get_option('es_show_estimate_on_product_page') . '',
                         'description' => 'Informe se quer que o cliente tenha uma previsão do frete na página do produto'
                     ],
                     'calculate_shipping' => [
                         'title' => __('Informe a porcentagem a ser segurada'),
                         'type' => 'number',
-                        'default' => '100',
+                        'default' => '0',
                         'class' => '',
                         'description' => 'Percentual do total da venda que será utilizado como Valor Segurado.'
                     ],
                 ];
-                
-                
+
+
                 //Feito as adições da option para armazenar dados de inclusão do plugin na tabela wp_options
-                add_option( 'es_enabled', '','', 'yes' );
-                add_option( 'es_key', '','', 'yes' );
-                add_option( 'es_zipcodeorigin','','', 'yes' );
-                add_option( 'es_sandbox', 'no', '', '');
-                add_option( 'es_show_delivery_time', '', '', '' );
-                add_option( 'es_show_estimate_on_product_page', '', '', 'yes' );
-                add_option('es_calculate_shipping','','','yes');  
+                add_option('es_enabled', '', '', 'yes');
+                add_option('es_key', '', '', 'yes');
+                add_option('es_zipcodeorigin', '', '', 'yes');
+                add_option('es_sandbox', 'no', '', '');
+                add_option('es_show_delivery_time', '', '', '');
+                add_option('es_show_estimate_on_product_page', '', '', 'yes');
+                add_option('es_calculate_shipping', '', '', 'yes');
             }
-            
+
             /*
-            
+
             // Função para salvar as options na tabela wp_options do banco de dados, prefiro es->enviosimples
             //@Arrays: cada array representa o valor do campo determinado na página de opções do plugin
-            
+
             */
-            
-            function save_options(){
-                
+
+            function save_options()
+            {
+
                 $key = $this->instance_settings['key'];
                 $cep = $this->instance_settings['zipCodeOrigin'];
                 $enabled = $this->instance_settings['enabled'];
-                $sandbox = $this->instance_settings['zipCodeOrigin'];
+                $sandbox = $this->instance_settings['sandbox'];
                 $show_deliverytime = $this->instance_settings['show_delivery_time'];
                 $show_estimateproductpage = $this->instance_settings['show_estimate_on_product_page'];
                 $calculate_shipping = $this->instance_settings['calculate_shipping'];
 
-                
-                update_option('es_key',$key,'','yes');
-                update_option('es_zipcodeorigin',$cep,'','yes');
-                update_option('es_enable',$enabled,'','yes');
-                update_option('es_sandbox',$sandbox,'','yes');
-                update_option('es_show_delivery_time',$show_deliverytime,'','yes');
-                update_option('es_show_estimate_on_product_page',$show_estimateproductpage,'','yes');
-                update_option('es_calculate_shipping',$calculate_shipping,'','yes');
 
+                update_option('es_key', $key, '', 'yes');
+                update_option('es_zipcodeorigin', $cep, '', 'yes');
+                update_option('es_enable', $enabled, '', 'yes');
+                update_option('es_sandbox', $sandbox, '', 'yes');
+                update_option('es_show_delivery_time', $show_deliverytime, '', 'yes');
+                update_option('es_show_estimate_on_product_page', $show_estimateproductpage, '', 'yes');
+                update_option('es_calculate_shipping', $calculate_shipping, '', 'yes');
             }
 
             function admin_options()
@@ -156,7 +155,7 @@ function woocommerce_enviosimples_init()
                 echo $this->get_admin_options_html();
             }
 
-			
+
             public function calculate_shipping($package = false)
             {
                 $use_this_method = $this->validate_shipping($package);
@@ -174,7 +173,7 @@ function woocommerce_enviosimples_init()
                 $sandbox     = $this->instance_settings['sandbox'];
 
                 $enviosimples = new Es_Plugin_Woocommerce_API($key, $sandbox);
-            
+
                 $height;
                 $width;
                 $lenght;
@@ -188,54 +187,47 @@ function woocommerce_enviosimples_init()
                     $length = (int)preg_replace("/[^0-9]/", "", $product->get_length());
 
                     $quantity = $item['quantity'];
-
-                    }
-                    
-                    $quantity = WC()->cart->get_cart_contents_count();
-                    
-                  
-                    $totalWeight = 0;
-                    $totalCm3 = 0;
-                
-                //Condição para realizar o fator cubagem em pedidos com mais de 1 produto
-                  if($quantity >= 1){
-                    for ($i = 0; $i < $quantity; $i++) {
-                        $volume = [];
-                        $volume['length'] = wc_get_dimension($length, 'cm'); //comprimento 
-                        $volume['width'] = wc_get_dimension($width, 'cm'); //largura 
-                        $volume['height'] = wc_get_dimension($height, 'cm'); //altura
-                       // $volume['weight'] = wc_get_weight($product->get_weight(), 'kg'); //Peso Bruto do produto 
-                        $price = $product->get_price();
-                        
-                        $cm3 = $volume['length'] * $volume['width'] * $volume['height'];
-        
-                      //  $totalWeight += $volume['weight'];
-        
-                        $totalCm3 += $cm3;
-                
-                    }
-        
-
-                $totalWeight = WC()->cart->get_cart_contents_weight();      
-                $cubic_root = pow($totalCm3, 1/3);
-                $cubic_root = $cubic_root + $cubic_root * 5/100;
-                $cm = ceil($cubic_root);
-
-                //Adicionado volumes
-                    if($quantity >= 1){
-                    $volume = [];
-                    $volume['length'] = $cm; //comprimento 
-                    $volume['width'] = $cm; //largura 
-                    $volume['height'] = $cm; //altura
-                    $volume['weight'] = $totalWeight;//Peso Bruto do produto
-                    $volume['quantity'] = 1; //Quantidades de volume
-                    
-                    
-                    $enviosimples->addVolumes($volume);
-                    }
-                        
                 }
-              
+
+                $quantity = WC()->cart->get_cart_contents_count();
+
+
+                $totalWeight = 0;
+                $totalCm3 = 0;
+
+                //Condição para realizar o fator cubagem em pedidos com mais de 1 produto
+
+                for ($i = 0; $i < $quantity; $i++) {
+                    $volume = [];
+                    $volume['length'] = wc_get_dimension($length, 'cm'); //comprimento
+                    $volume['width'] = wc_get_dimension($width, 'cm'); //largura
+                    $volume['height'] = wc_get_dimension($height, 'cm'); //altura
+                    $price = $product->get_price();
+
+                    $cm3 = $volume['length'] * $volume['width'] * $volume['height'];
+
+
+                    $totalCm3 += $cm3;
+
+
+                    $totalWeight = WC()->cart->get_cart_contents_weight();
+                    $cubic_root = pow($totalCm3, 1 / 3);
+                    $cubic_root = $cubic_root + $cubic_root * 5 / 100;
+                    $cm = ceil($cubic_root);
+
+                    //Adicionado volumes
+
+                    $volume = [];
+                    $volume['length'] = $cm; //comprimento
+                    $volume['width'] = $cm; //largura
+                    $volume['height'] = $cm; //altura
+                    $volume['weight'] = $totalWeight; //Peso Bruto do produto
+                    $volume['quantity'] = 1; //Quantidades de volume
+
+                }
+
+                $enviosimples->addVolumes($volume);
+
 
                 $zipCodeOrigin  = $this->instance_settings['zipCodeOrigin'];
                 $zipCodeOrigin = str_replace('.', '', $zipCodeOrigin);
@@ -256,26 +248,26 @@ function woocommerce_enviosimples_init()
                 }
 
                 $valueDeclared  = $package['cart_subtotal'] * ($porc / 100);
-                
 
-                $shipping = $enviosimples->calculate_shipping($zipCodeOrigin, $zipCodeDestiny, $valueDeclared, 'false');			
 
-				
-				
+                $shipping = $enviosimples->calculate_shipping($zipCodeOrigin, $zipCodeDestiny, $valueDeclared, 'false');
+
+
+
                 if (is_array($shipping)) {
                     $calculatorId = $shipping['calculatorId'];
-                    
 
-                  
+
+
                     foreach ($shipping['rate'] as $rate) {
-                        
+
                         $shipping_name = $rate->shipping;
-                        
+
                         $meta_delivery = array(
                             '_calculatorId' => $calculatorId, //Obrigadorio
-                            '_shippingId'   => $rate->shippingId, //no caso deste o ID é muito importnte 
+                            '_shippingId'   => $rate->shippingId, //no caso deste o ID é muito importnte
                             '_valueDeclared'   => number_format($valueDeclared, 2, ',', '.'),
-                            '_token' => $this->instance_settings['key'], //no caso deste o ID é muito importnte 
+                            '_token' => $this->instance_settings['key'], //no caso deste o ID é muito importnte
                             '_type_send'    => $rate->alias,
                             '_enviosimples_sandbox' => $this->instance_settings['sandbox'],
                         );
@@ -295,8 +287,8 @@ function woocommerce_enviosimples_init()
                             'cost'      => $price,
                             'meta_data' => $meta_delivery
                         ];
-                        
-                        
+
+
                         $this->add_rate($rates_woo, $package);
                     }
                 } else {
@@ -306,28 +298,25 @@ function woocommerce_enviosimples_init()
             }
 
 
-            
-            public function save_key_zipcode(){
+            public function save_key_zipcode()
+            {
 
                 global $wpdb;
 
                 $key = $this->instance_settings['key'];
-                
-                $wpdb->query($wpdb->
-                        prepare("UPDATE 'wp_options' SET 'option_value'='$key' WHERE option_name='es_key'"));
 
+                $wpdb->query($wpdb->prepare("UPDATE 'wp_options' SET 'option_value'='$key' WHERE option_name='es_key'"));
             }
 
 
             /****************************/
-                   public function forecast_shipping($enviosimples_product = false)
+            public function forecast_shipping($enviosimples_product = false)
             {
                 global $product;
                 global $woocommerce;
 
 
-                // echo "<pre>";print_r($product);echo "</pre>";				
-                // echo "<pre>";print_r($this->instance_settings);echo "</pre>";
+
                 if ($this->instance_settings['enabled'] != 'yes') return;
 
                 if ($this->instance_settings['show_estimate_on_product_page'] != 'yes') return;
@@ -347,16 +336,20 @@ function woocommerce_enviosimples_init()
                 if ($woocommerce->cart->find_product_in_cart($product_cart_id)) {
                     $quantity = $cart[$product_cart_id]['quantity'];
                 }
+
                 if ($quantity <= 0) {
                     $quantity = 1;
                 }
 
                 $volume = [];
-                $volume['length'] = wc_get_dimension($length, 'cm'); //comprimento 
-                $volume['width'] = wc_get_dimension($width, 'cm'); //largura 
+                $volume['length'] = wc_get_dimension($length, 'cm'); //comprimento
+                $volume['width'] = wc_get_dimension($width, 'cm'); //largura
                 $volume['height'] = wc_get_dimension($height, 'cm'); //altura
-                $volume['weight'] = wc_get_weight($product->get_weight(), 'kg'); //Peso Bruto do produto 
+                $volume['weight'] = wc_get_weight($product->get_weight(), 'kg'); //Peso Bruto do produto
+                $volume['quantity'] = 1;
                 $price = $product->get_price();
+
+
 
                 if ($weight == 0 || $height == 0 || $width == 0 || $length == 0) return;
 
@@ -385,17 +378,17 @@ function woocommerce_enviosimples_init()
                 .as-col-xs-12{float:left;width:100%;}
                 @media (min-width:600px) {.as-col-sm-4,.as-col-sm-8,as-col-sm-12{float:left;}.as-col-sm-4{width:33.33%;}.as-col-sm-8{width:66.33%;}.as-col-sm-12{width:100%;}}
                 @media (min-width:992px){.as-col-md-3,.as-col-md-9,.as-col-md-12{float:left;}.as-col-md-3{width:25%;}.as-col-md-9{width:75%};as-col-md-12{width:100%;}}
-                .enviosimples_shipping_forecast_form{padding-top:20px;}					
-                .enviosimples_shipping_forecast_form input{max-width:100% !important;text-align:center;height:42px;}					
+                .enviosimples_shipping_forecast_form{padding-top:20px;}
+                .enviosimples_shipping_forecast_form input{max-width:100% !important;text-align:center;height:42px;}
                 .enviosimples_shipping_forecast_table{padding:20px 0px;}
-                .enviosimples_shipping_forecast_table table{width:100%;}					
+                .enviosimples_shipping_forecast_table table{width:100%;}
                 .woocommerce div.product form.cart div.quantity, .woocommerce div.product form.cart .button{top:auto;}
             </style>
             <div style='clear:both;'></div>
             <div class='enviosimples_shipping_forecast_form as-row'>
                 <div class=''>
-                    <form method='post' action='{$product_link}' id='enviosimples_shipping_forecast'>	
-                        <div class=''>				
+                    <form method='post' action='{$product_link}' id='enviosimples_shipping_forecast'>
+                        <div class=''>
                             <div class='as-col-md-3 as-col-sm-4 as-col-xs-12'>
                                 <input type='text' value='{$target_zip_code}' class='as_mask_zip_code' name='enviosimples_forecast_zip_code'/>
                             </div>
@@ -420,9 +413,9 @@ function woocommerce_enviosimples_init()
 
                 $enviosimples = new Es_Plugin_Woocommerce_API($key, $sandbox);
 
-                for ($i = 0; $i < $quantity; $i++) {
-                    $enviosimples->addVolumes($volume);
-                }
+
+                $enviosimples->addVolumes($volume);
+
 
                 $porc = $this->instance_settings['calculate_shipping'];
 
@@ -430,7 +423,7 @@ function woocommerce_enviosimples_init()
                     $porc = 100;
                 }
 
-                $valueDeclared  = ($quantity * $price) * ($porc / 100); //aqui 
+                $valueDeclared  = ($quantity * $price) * ($porc / 100); //aqui
 
                 $shipping       = $enviosimples->calculate_shipping($zipCodeOrigin, $target_zip_code, $valueDeclared, 'false');
 
@@ -453,12 +446,12 @@ function woocommerce_enviosimples_init()
 
                     $prazo_texto = "";
                     if ('yes' === $show_delivery_time) $prazo_texto = " (" . $rate->deadline . ")";
-				  	
-				 $shipping_name = $rate->shipping;
-                 $rate_item['label'] = $shipping_name . ' ' . $rate->name . ' (Envio Simples) ' . $prazo_texto;
-                    // $rate_item['cost'] = wc_price($rate->price_enviosimples);
+
+                    $shipping_name = $rate->shipping;
+                    $rate_item['label'] = $shipping_name . ' ' . $rate->name . ' (Envio Simples) ' . $prazo_texto;
+
                     $rate_item['cost'] = $price = wc_price($rate->priceFinish);
-                    //$rate_item['cost'] = wc_price($rate->price);
+
 
                     $rates[] = $rate_item;
                 }
@@ -492,8 +485,8 @@ function woocommerce_enviosimples_init()
             </div>
             ";
             }
-            /***************************/
 
+            /***************************/
 
 
             private function validate_shipping($package = false)

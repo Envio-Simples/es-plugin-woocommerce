@@ -156,18 +156,16 @@ class Es_Plugin_Woocommerce_API
         $data = [
             'zipCodeOrigin'  => "{$zipCodeOrigin}",
             'zipCodeDestiny' => "{$zipCodeDestiny}",
-            'valueDeclared'  => $valueDeclared,
+            'valueDeclared'  => "{$valueDeclared}",
             'reverse'        => "{$reverse}",
             'volumes'        => $this->volumes
         ];
-     
 
         if (trim($this->key) <> "") {
             $data['key'] = $this->key;
         }
 
         $return = $this->call_curl('POST', '/es-calculator/calculator/'.$this->key.'', $data);
-
 
         if (isset($return->error)) {
             return;
@@ -234,6 +232,8 @@ class Es_Plugin_Woocommerce_API
 
         return $this;
     }
+	
+	
 
     public function addVolumes($valor)
     {
@@ -244,6 +244,13 @@ class Es_Plugin_Woocommerce_API
     public function getVolumes()
     {
         return $this->volumes;
+    }
+	
+	 public function send_labels($label_data)
+    {
+
+        $return = $this->call_curl('POST', '/es-api/tickets', $label_data);
+        return (object)$return;
     }
 
     private function arrayToParams($array, $prefix = null)
@@ -385,6 +392,7 @@ class Es_Plugin_Woocommerce_API
     {
         $this->length = $length;
     }
+	
 
     private function only_numbers($val)
     {
