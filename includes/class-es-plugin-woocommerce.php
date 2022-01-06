@@ -27,7 +27,8 @@
  * @subpackage Es_Plugin_Woocommerce/includes
  * @author     https://github.com/Envio-Simples/es-plugin-woocommerce <contato@ecomd.com.br>
  */
-class Es_Plugin_Woocommerce {
+class Es_Plugin_Woocommerce
+{
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -66,8 +67,9 @@ class Es_Plugin_Woocommerce {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct() {
-		if ( defined( 'ES_PLUGIN_WOOCOMMERCE_VERSION' ) ) {
+	public function __construct()
+	{
+		if (defined('ES_PLUGIN_WOOCOMMERCE_VERSION')) {
 			$this->version = ES_PLUGIN_WOOCOMMERCE_VERSION;
 		} else {
 			$this->version = '1.0.0';
@@ -97,50 +99,50 @@ class Es_Plugin_Woocommerce {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function load_dependencies() {
+	private function load_dependencies()
+	{
 
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-loader.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-es-plugin-woocommerce-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-i18n.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-es-plugin-woocommerce-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-es-plugin-woocommerce-admin.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-es-plugin-woocommerce-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-es-plugin-woocommerce-public.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-es-plugin-woocommerce-public.php';
 
 		/**
 		 * The class responsible for all functionalits in orders
 		 */
-	    
-	    //	require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-label.php';
+
+		//	require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-label.php';
 
 		/**
-		 * The main class 
+		 * The main class
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-main.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-es-plugin-woocommerce-main.php';
 
 		/**
-		 * The main class 
+		 * The main class
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-es-plugin-woocommerce-simples.php';
+		require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-es-plugin-woocommerce-simples.php';
 
 
 		$this->loader = new Es_Plugin_Woocommerce_Loader();
-
 	}
 
 	/**
@@ -152,12 +154,12 @@ class Es_Plugin_Woocommerce {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function set_locale() {
+	private function set_locale()
+	{
 
 		$plugin_i18n = new Es_Plugin_Woocommerce_i18n();
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
+		$this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
 	}
 
 	/**
@@ -167,32 +169,32 @@ class Es_Plugin_Woocommerce {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_everywhere_hooks() {
-		
-		
+	private function define_everywhere_hooks()
+	{
 
-		add_action('woocommerce_shipping_init','woocommerce_enviosimples_init');
-		add_action( 'wp_ajax_nopriv_isw_woo_update_ticket','isw_woo_update_ticket',99999);
-        add_action( 'wp_ajax_isw_woo_update_ticket','isw_woo_update_ticket',99999);
-		
-		
-	
+
+
+		add_action('woocommerce_shipping_init', 'woocommerce_enviosimples_init');
+		add_action('wp_ajax_nopriv_isw_woo_update_ticket', 'isw_woo_update_ticket', 99999);
+		add_action('wp_ajax_isw_woo_update_ticket', 'isw_woo_update_ticket', 99999);
+
+
+
 		$main = new Es_Plugin_Woocommerce_main();
 
-		$this->loader->add_action( 'woocommerce_order_status_processing', $main, 'button_generate', 9999, 1 );
-		$this->loader->add_action( 'woocommerce_order_status_completed', $main, 'button_generate', 9999, 1 );
-		$this->loader->add_filter( 'woocommerce_shipping_methods', $main, 'add_woocommerce_enviosimples');
-		$this->loader->add_action( 'wp_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
-		$this->loader->add_action( 'admin_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
-		$this->loader->add_action( 'woocommerce_after_add_to_cart_form', $main, 'enviosimples_shipping_forecast_on_product_page',50);
-		$this->loader->add_filter( 'manage_edit-shop_order_columns', $main, 'isw_column_ticket',9999);
-		$this->loader->add_action( 'admin_head', $main, 'add_custom_action_button_css',999);
-		$this->loader->add_action( 'manage_shop_order_posts_custom_column', $main ,'add_example_column_contents', 999, 2 );
- 		$this->loader->add_action( 'wp_ajax_nopriv_isw_woo_update_ticket', $main,'isw_woo_update_ticket',9999);
-        $this->loader->add_action( 'wp_ajax_isw_woo_update_ticket',$main, 'isw_woo_update_ticket',9999);
-        $this->loader->add_action('ac/table/actions',$main,'get_ticket',9999);
-		$this->loader->add_action('manage_posts_extra_tablenav',$main,'refresh_page',999);
-	}	
+		$this->loader->add_action('woocommerce_order_status_processing', $main, 'button_generate', 9999, 1);
+		$this->loader->add_action('woocommerce_order_status_completed', $main, 'button_generate', 9999, 1);
+		$this->loader->add_filter('woocommerce_shipping_methods', $main, 'add_woocommerce_enviosimples');
+		$this->loader->add_action('wp_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
+		$this->loader->add_action('admin_enqueue_scripts', $main, 'enviosimples_enqueue_user_scripts');
+		$this->loader->add_action('woocommerce_after_add_to_cart_form', $main, 'enviosimples_shipping_forecast_on_product_page', 50);
+		$this->loader->add_filter('manage_edit-shop_order_columns', $main, 'isw_column_ticket', 9999);
+		$this->loader->add_action('admin_head', $main, 'add_custom_action_button_css', 999);
+		$this->loader->add_action('manage_shop_order_posts_custom_column', $main, 'add_example_column_contents', 999, 2);
+		$this->loader->add_action('wp_ajax_nopriv_isw_woo_update_ticket', $main, 'isw_woo_update_ticket', 9999);
+		$this->loader->add_action('wp_ajax_isw_woo_update_ticket', $main, 'isw_woo_update_ticket', 9999);
+		$this->loader->add_action('restrict_manage_posts', $main, 'get_ticket', 99999);
+	}
 	/**
 	 * Register all of the hooks related to the admin area functionality
 	 * of the plugin.
@@ -200,13 +202,13 @@ class Es_Plugin_Woocommerce {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_admin_hooks() {
-		
-		$plugin_admin = new Es_Plugin_Woocommerce_Admin( $this->get_plugin_name(), $this->get_version() );
+	private function define_admin_hooks()
+	{
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$plugin_admin = new Es_Plugin_Woocommerce_Admin($this->get_plugin_name(), $this->get_version());
 
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
+		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 	}
 
 	/**
@@ -216,12 +218,12 @@ class Es_Plugin_Woocommerce {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_public_hooks() {
-		$plugin_public = new Es_Plugin_Woocommerce_Public( $this->get_plugin_name(), $this->get_version() );
+	private function define_public_hooks()
+	{
+		$plugin_public = new Es_Plugin_Woocommerce_Public($this->get_plugin_name(), $this->get_version());
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
+		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 	}
 
 	/**
@@ -229,7 +231,8 @@ class Es_Plugin_Woocommerce {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
+	public function run()
+	{
 		$this->loader->run();
 	}
 
@@ -240,7 +243,8 @@ class Es_Plugin_Woocommerce {
 	 * @since     1.0.0
 	 * @return    string    The name of the plugin.
 	 */
-	public function get_plugin_name() {
+	public function get_plugin_name()
+	{
 		return $this->plugin_name;
 	}
 
@@ -250,7 +254,8 @@ class Es_Plugin_Woocommerce {
 	 * @since     1.0.0
 	 * @return    Es_Plugin_Woocommerce_Loader    Orchestrates the hooks of the plugin.
 	 */
-	public function get_loader() {
+	public function get_loader()
+	{
 		return $this->loader;
 	}
 
@@ -260,8 +265,8 @@ class Es_Plugin_Woocommerce {
 	 * @since     1.0.0
 	 * @return    string    The version number of the plugin.
 	 */
-	public function get_version() {
+	public function get_version()
+	{
 		return $this->version;
 	}
-
 }
