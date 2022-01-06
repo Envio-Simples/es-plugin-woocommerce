@@ -79,7 +79,7 @@ class Es_Plugin_Woocommerce_main
                     
             }
         
-        if (!$ticket_code || $ticket_code == 'Tente novamente'){ //Senão existe gera uma etiqueta 
+        if (!$ticket_code || $ticket_code == 'Tente novamente'){ //Se não existe gera uma etiqueta 
 
             
             $calculatorId = $this->isw_get_item_meta($order_id, '_calculatorId');
@@ -200,34 +200,30 @@ class Es_Plugin_Woocommerce_main
             $data_button = get_post_meta($post->ID, 'button_ticket',true).'';
           
             $id = $order_id;
-            
-            $ticket = update_post_meta($order_id, "{$meta_key}", '<a href='.$url.' title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>');
-            $disable_button = update_post_meta($order_id,'button_ticket', '');
-            $ticket_failed = update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
-            $button_generate = update_post_meta($order_id,'button_ticket', '<p><button class="button getTicket" id="ticketButton" value="'.$id.'">Gerar Etiqueta</button></p>');
-
-            
+      
             
                 if (is_object($etiqueta)) {
 
                 if ($etiqueta->code == 201 ) {
                 
-                echo $ticket;
-                echo $disable_button;
+               update_post_meta($order_id, "{$meta_key}", '<a href='.$url.' title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>');
+                 update_post_meta($order_id,'button_ticket', '');
                     
 
                 }
 					
                 elseif($etiqueta->data->error == 'ticket_exist'){
 
-                echo $ticket;
-                echo $disable_button;
+                   
+               update_post_meta($order_id, "{$meta_key}", '<a href='.$url.' title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>');
+                 update_post_meta($order_id,'button_ticket', '');
                 
                 }
                 else {
 					
-                    echo $ticket_failed;
-                    echo $button_generate;
+              update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
+              update_post_meta($order_id,'button_ticket', '<p><button class="button getTicket" id="ticketButton" value="'.$id.'">Gerar Etiqueta</button></p>');
+                
                 }
             
             }else {
@@ -248,23 +244,6 @@ class Es_Plugin_Woocommerce_main
         update_post_meta($order_id,'button_ticket', '<p><button class="button getTicket" id="ticketButton" value="'.$id.'">Gerar Etiqueta</button></p>');
 
     }
-	// Function para aparecer as etiquetas após geradas
-	public function refresh_page(){
-		
-		  echo "<script>
-		  jQuery(document).ready(function(){
-                     if (!localStorage.getItem('reload')) {
-                  
-                    localStorage.setItem('reload', 'true');
-                    location.reload();
-                }
-                else {
-                    localStorage.removeItem('reload');
-                }
-		  }
-     
-     </script>";
-	}
 
     // Function para adicionar a coluna customizada na página de pedidos
 
@@ -285,7 +264,7 @@ class Es_Plugin_Woocommerce_main
         echo $data_button;
     
     	} 
-     }
+    }
         
     //Function para chamar a função de gerar etiqueta ao clicar no botão em cada pedido.
     public function get_ticket($order_id){
@@ -293,7 +272,15 @@ class Es_Plugin_Woocommerce_main
         echo "<script>  
                
         jQuery(document).ready(function(){
-       
+		
+		        if (!localStorage.getItem('reload')) {     
+                localStorage.setItem('reload', 'true');
+                location.reload();
+            }
+            else {
+                localStorage.removeItem('reload');
+            }
+
         jQuery('.getTicket').click(function(element){
             
         	jQuery.ajax({
@@ -304,7 +291,7 @@ class Es_Plugin_Woocommerce_main
 				  	'order_id': element.target.value
 				  },
                   success: function(data) {
-                    console.log('Etiqueta Emitida');
+                   location.reload(true);
                   }
                   
                 });
@@ -312,7 +299,7 @@ class Es_Plugin_Woocommerce_main
 
 });
        </script>";
-       
+    
     }
     
 
