@@ -36,95 +36,93 @@ class Es_Plugin_Woocommerce_main
         return;
     }
 
-    public function add_custom_action_button_css() {
+    public function add_custom_action_button_css()
+    {
         $action_slug = "my_column";
-        
-     
-        echo '<style>.wc-action-button-'.$action_slug.'::after { font-family: woocommerce !important; content: "\e029" !important; }</style>';
+
+
+        echo '<style>.wc-action-button-' . $action_slug . '::after { font-family: woocommerce !important; content: "\e029" !important; }</style>';
     }
 
-    
+
     public function isw_woo_update_ticket()
     {
         global $wpdb;
         global $woocommerce;
         global $post;
-    
-    
+
+
         //Busca a Etiqueta e atualiza o post meta_data
-        
+
         $order_id = $_POST['order_id'];
-      
-        
+
+
         $meta_key = '_ticket_code';
         $ticket_code = get_post_meta($order_id, "{$meta_key}", true);
-        
-        
-        $order = wc_get_order( $order_id );
-		$order_data = $order->get_data();
-        
+
+
+        $order = wc_get_order($order_id);
+        $order_data = $order->get_data();
+
         /*
         * Array que contêm os nomes dos produtos do pedido
         * @var array $name_product
         */
-            $name_product = array();
-            
-            foreach ( $order->get_items() as $item_id => $item ) {
-                // Get product object
-                $product = $item->get_product();
-				
-                $product_name = $product->get_data()['name'];
+        $name_product = array();
 
-                array_push($name_product, $product_name);
-                    
-            }
-        
-        if (!$ticket_code || $ticket_code == 'Tente novamente'){ //Se não existe gera uma etiqueta 
+        foreach ($order->get_items() as $item_id => $item) {
+            // Get product object
+            $product = $item->get_product();
 
-            
+            $product_name = $product->get_data()['name'];
+
+            array_push($name_product, $product_name);
+        }
+
+        if (!$ticket_code || $ticket_code == 'Tente novamente') { //Se não existe gera uma etiqueta
+
+
             $calculatorId = $this->isw_get_item_meta($order_id, '_calculatorId');
             $content      = 'PRODUTOS';
             $alias        = $this->isw_get_item_meta($order_id, '_type_send');
             $document     = 'declaracao_conteudo';
 
-            //item_comprados 
+            //item_comprados
             $prefix  = $wpdb->prefix;
             $sql = "SELECT order_item_id
                    FROM  {$prefix}woocommerce_order_items items
-                  WHERE  items.order_item_type = 'line_item' AND 
+                  WHERE  items.order_item_type = 'line_item' AND
                          items.order_id    =  {$order_id}";
             $rs = $wpdb->get_results($sql);
-            
-        
 
             $declarationItens = [];
-            
+
             foreach ($rs as $linha) {
                 $order_item_id = $linha->order_item_id;
                 $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
 
-               
-                    $item = get_the_title($this->isw_get_item_meta_id($order_item_id, '_product_id'));
 
-                    $content = $name_product[$i] . ' e etc';
+                $item = get_the_title($this->isw_get_item_meta_id($order_item_id, '_product_id'));
 
-                    $subtotal   = $this->isw_get_item_meta_id($order_item_id, '_line_subtotal');
+                $content = $name_product[$i] . ' e etc';
 
-                    $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
+                $subtotal   = $this->isw_get_item_meta_id($order_item_id, '_line_subtotal');
 
-                    $value = $subtotal / $quantidade;
+                $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
 
-                    $count = 1;
+                $value = $subtotal / $quantidade;
 
-                    $declarationItens[] = array('item' => "{$item}", 'value' => $value, 'count' => $quantidade);
-               }
-            
-      
+                $count = 1;
+
+                $declarationItens[] = array('item' => "{$item}", 'value' => $value, 'count' => $quantidade);
+            }
+
+
             $type = get_post_meta($order_id, '_billing_persontype', true) == '1' ? 'physical-person' : 'legal-person';
 
             $name      = get_post_meta($order_id, '_shipping_first_name', true) . ' ' . get_post_meta($order_id, '_shipping_last_name', true);
 
-            $document2 = $type == 'legal-person' ? get_post_meta($order_id, '_billing_cnpj', true)  :  get_post_meta($order_id, '_billing_cpf', true); //Claudio Sanches 
+            $document2 = $type == 'legal-person' ? get_post_meta($order_id, '_billing_cnpj', true)  :  get_post_meta($order_id, '_billing_cpf', true); //Claudio Sanches
 
             $document2 = str_replace(".", "", $document2);
             $document2 = str_replace(".", "", $document2);
@@ -153,7 +151,8 @@ class Es_Plugin_Woocommerce_main
             $zipCode   = get_post_meta($order_id, '_shipping_postcode', true);
             $zipCode = preg_replace("/[^0-9]/", "", $zipCode);
 
-            $street    = get_post_meta($order_id, '_shipping_address_1', true) . ' ' . get_post_meta($order_id, '_shipping_address_2', true);
+            $street    = get_post_meta($order_id, '_shipping_address_1', true);
+            $complement = get_post_meta($order_id, '_shipping_address_2', true);
             $number    = get_post_meta($order_id, '_shipping_number', true);
             $district  = get_post_meta($order_id, '_shipping_neighborhood', true);
             $city      = get_post_meta($order_id, '_shipping_city', true);
@@ -162,11 +161,12 @@ class Es_Plugin_Woocommerce_main
             $sender = [
                 'type'    => "{$type}",
                 'name'    => "{$name}",
-                'document' => "{$document2}", //declaracao_conteudo
+                'document' => "{$document2}",
                 'phone'   => "{$phone}",
                 'email'   => "{$email}",
                 'zipCode' => "{$zipCode}",
                 'street'  => "{$street}",
+                'complement' => "{$complement}",
                 'number'  => "{$number}",
                 'district' => "{$district}",
                 'city'    => "{$city}",
@@ -185,95 +185,87 @@ class Es_Plugin_Woocommerce_main
                 'additionalServices' => $additionalServices,
                 'typeEmission' => 'integration'
             ];
-         
-   
+
+
             $token   = $this->isw_get_item_meta($order_id, '_token');
             $sandbox = $this->isw_get_item_meta($order_id, '_enviosimples_sandbox');
 
             $envio = new Es_Plugin_Woocommerce_API($token, $sandbox);
-        
-            
-            $etiqueta = $envio->call_curl('POST', '/es-tickets/generate-ticket/'.$token.'', $ticket);
-            
-            $url    = esc_url(''.$etiqueta->data->link.'');
 
-            $data_button = get_post_meta($post->ID, 'button_ticket',true).'';
-          
+
+            $etiqueta = $envio->call_curl('POST', '/es-tickets/generate-ticket/' . $token . '', $ticket);
+
+            $url    = esc_url('' . $etiqueta->data->link . '');
+
+            $data_button = get_post_meta($post->ID, 'button_ticket', true) . '';
+
             $id = $order_id;
-      
-            
-                if (is_object($etiqueta)) {
 
-                if ($etiqueta->code == 201 ) {
-                
-               update_post_meta($order_id, "{$meta_key}", '<a href='.$url.' title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>');
-                 update_post_meta($order_id,'button_ticket', '');
-                    
 
-                }
-					
-                elseif($etiqueta->data->error == 'ticket_exist'){
+            if (is_object($etiqueta)) {
 
-                   
-               update_post_meta($order_id, "{$meta_key}", '<a href='.$url.' title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>');
-                 update_post_meta($order_id,'button_ticket', '');
-                
+                if ($etiqueta->code == 201) {
+
+                    update_post_meta($order_id, "{$meta_key}", '<a href=' . $url . ' title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>');
+                    update_post_meta($order_id, 'button_ticket', '');
+                } elseif ($etiqueta->data->error == 'ticket_exist') {
+
+
+                    update_post_meta($order_id, "{$meta_key}", '<a href=' . $url . ' title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>');
+                    update_post_meta($order_id, 'button_ticket', '');
+                } else {
+
+                    update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
+                    update_post_meta($order_id, 'button_ticket', '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>');
                 }
-                else {
-					
-              update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
-              update_post_meta($order_id,'button_ticket', '<p><button class="button getTicket" id="ticketButton" value="'.$id.'">Gerar Etiqueta</button></p>');
-                
-                }
-            
-            }else {
-                //não faz nada 
-                }
+            } else {
+                //não faz nada
             }
-      
+        }
     }
 
     // Function para adicionar o botão de "Gerar Etiqueta" toda vez que um pedido alterar o status para "Novo pedido" ou "Completo"
-    public function button_generate($order_id){
+    public function button_generate($order_id)
+    {
 
         global $post;
-        
-        $data_button = get_post_meta($post->ID, 'button_ticket',true).'';
-        $id = $order_id;
-       
-        update_post_meta($order_id,'button_ticket', '<p><button class="button getTicket" id="ticketButton" value="'.$id.'">Gerar Etiqueta</button></p>');
 
+        $data_button = get_post_meta($post->ID, 'button_ticket', true) . '';
+        $id = $order_id;
+
+        update_post_meta($order_id, 'button_ticket', '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>');
     }
 
     // Function para adicionar a coluna customizada na página de pedidos
 
-     public function add_example_column_contents( $column, $post_id ) {
+    public function add_example_column_contents($column, $post_id)
+    {
 
         global $post;
-        
+
         //start editing, I was saving my fields for the orders as custom post meta
         $data = get_post_meta($post->ID, '_ticket_code', true) . '';
-        $data_button = get_post_meta($post->ID, 'button_ticket',true).'';
-      
-     
+        $data_button = get_post_meta($post->ID, 'button_ticket', true) . '';
+
+
         //if you did the same, follow this code
 
         if ($column == 'isw_ticket') {
-                
-        echo $data;
-        echo $data_button;
-    
-    	} 
+
+            echo $data;
+            echo $data_button;
+        }
     }
-        
+
     //Function para chamar a função de gerar etiqueta ao clicar no botão em cada pedido.
-    public function get_ticket($order_id){
-        
-        echo "<script>  
-               
+    public function get_ticket($order_id)
+    {
+
+        echo "<script>
+
         jQuery(document).ready(function(){
-		
-		        if (!localStorage.getItem('reload')) {     
+
+		        if (!localStorage.getItem('reload')) {
                 localStorage.setItem('reload', 'true');
                 location.reload();
             }
@@ -282,7 +274,7 @@ class Es_Plugin_Woocommerce_main
             }
 
         jQuery('.getTicket').click(function(element){
-            
+
         	jQuery.ajax({
                   method: 'POST',
                   url: '/wp-admin/admin-ajax.php',
@@ -293,15 +285,14 @@ class Es_Plugin_Woocommerce_main
                   success: function(data) {
                    location.reload(true);
                   }
-                  
+
                 });
     })
 
 });
        </script>";
-    
     }
-    
+
 
     public function add_woocommerce_enviosimples($methods)
     {
@@ -334,13 +325,12 @@ class Es_Plugin_Woocommerce_main
         }
 
         $metodos_de_entrega = $this->enviosimples_get_metodos_de_entrega($target_zip_code);
-        
-        
+
+
 
         if (count($metodos_de_entrega) == 0) return;
 
-        foreach($metodos_de_entrega as $k=>$v)
-        {
+        foreach ($metodos_de_entrega as $k => $v) {
             $metodo = $v;
             if (is_object($metodo) && get_class($metodo) == "WC_woocommerce_enviosimples") {
                 $enviosimples_class = $metodo;
@@ -351,7 +341,7 @@ class Es_Plugin_Woocommerce_main
     }
 
 
-   public function isw_column_ticket($columns)
+    public function isw_column_ticket($columns)
     {
         $new_columns = (is_array($columns)) ? $columns : array();
 
@@ -361,13 +351,13 @@ class Es_Plugin_Woocommerce_main
         //all of your columns will be added before the actions column
         $new_columns['isw_ticket'] = 'Envio Simples';
 
-  
+
         //stop editing
         $new_columns['order_actions'] = $columns['order_actions'];
 
         return $new_columns;
     }
-    
+
 
 
     public function enviosimples_get_metodos_de_entrega($cep_destinatario)
@@ -594,9 +584,9 @@ class Es_Plugin_Woocommerce_main
 
         $return = false;
 
-        $sql = "SELECT itemmeta.meta_value AS value 
-                 FROM  {$prefix}woocommerce_order_itemmeta itemmeta 
-                WHERE  itemmeta.order_item_id ={$order_item_id}    AND 
+        $sql = "SELECT itemmeta.meta_value AS value
+                 FROM  {$prefix}woocommerce_order_itemmeta itemmeta
+                WHERE  itemmeta.order_item_id ={$order_item_id}    AND
                        itemmeta.meta_key = '{$meta_key}'";
 
         $rs = $wpdb->get_results($sql);
@@ -614,12 +604,12 @@ class Es_Plugin_Woocommerce_main
 
         $return = false;
 
-        $sql = "SELECT itemmeta.meta_value AS value 
-             FROM  {$prefix}woocommerce_order_items items, 
-                   {$prefix}woocommerce_order_itemmeta itemmeta 
-            WHERE  items.order_item_id = itemmeta.order_item_id AND 
-                   items.order_item_type = 'shipping'           AND 
-                   items.order_id    =  {$order_id}             AND 
+        $sql = "SELECT itemmeta.meta_value AS value
+             FROM  {$prefix}woocommerce_order_items items,
+                   {$prefix}woocommerce_order_itemmeta itemmeta
+            WHERE  items.order_item_id = itemmeta.order_item_id AND
+                   items.order_item_type = 'shipping'           AND
+                   items.order_id    =  {$order_id}             AND
                    itemmeta.meta_key = '{$meta_key}'";
 
 
@@ -629,5 +619,4 @@ class Es_Plugin_Woocommerce_main
         }
         return $return;
     }
-
 }
