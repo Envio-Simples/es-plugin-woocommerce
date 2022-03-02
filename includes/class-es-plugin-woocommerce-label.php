@@ -37,7 +37,7 @@ class Es_Plugin_Woocommerce_Label
 
         $shp_main_data = current($order->get_shipping_methods());
 
-        // if ("woocommerce_enviosimples" != trim($shp_main_data->get_method_id())) return;	
+        // if ("woocommerce_enviosimples" != trim($shp_main_data->get_method_id())) return;
         if (strpos($shp_main_data->get_method_id(), "woocommerce_enviosimples") === false) return;
 
         //verificar o ID e o tipo de envio
