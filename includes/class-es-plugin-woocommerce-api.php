@@ -52,7 +52,7 @@ class Es_Plugin_Woocommerce_API
             'Content-Type: application/json',
             "es-app-key:{$this->esAppKey}"
         ];
-        
+
 
         if ($this->log_isw) {
             $this->isw_log_envios('call_curl($type,$url,$parameters)', '$headers', $headers);
@@ -82,7 +82,7 @@ class Es_Plugin_Woocommerce_API
         $return = curl_exec($ch);
 
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	
+
 
         if ($status == 0) {
             if ($this->log_isw) {
@@ -148,7 +148,7 @@ class Es_Plugin_Woocommerce_API
             $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return_decode', $return_decode);
         }
 
-        return $return_decode; //Objetos Json 
+        return $return_decode; //Objetos Json
     }
 
     public function calculate_shipping($zipCodeOrigin, $zipCodeDestiny, $valueDeclared, $reverse = 'false')
@@ -165,7 +165,7 @@ class Es_Plugin_Woocommerce_API
             $data['key'] = $this->key;
         }
 
-        $return = $this->call_curl('POST', '/es-calculator/calculator/'.$this->key.'', $data);
+        $return = $this->call_curl('POST', '/es-calculator/calculator/' . $this->key . '', $data);
 
         if (isset($return->error)) {
             return;
@@ -173,7 +173,7 @@ class Es_Plugin_Woocommerce_API
 
         $calculatorId = $return->data->calculatorId;
 
-   
+
         $rates = array();
 
 
@@ -196,7 +196,7 @@ class Es_Plugin_Woocommerce_API
         return $rates;
     }
 
-    //public function set_nDocEmit ($valor){ $this->nDocEmit  = $valor; return $this; } 
+    //public function set_nDocEmit ($valor){ $this->nDocEmit  = $valor; return $this; }
 
     public function set_cDestCalc($valor)
     {
@@ -211,7 +211,7 @@ class Es_Plugin_Woocommerce_API
         $url = "viacep.com.br/ws/{$valor}/json/";
         $ch = curl_init($url);
         $request_headers = array('Content-Type:application/json');
-        //curl 
+        //curl
         curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
         curl_setopt($ch, CURLOPT_POST, false);
         curl_setopt($ch, CURLOPT_HTTPGET, true);
@@ -232,8 +232,8 @@ class Es_Plugin_Woocommerce_API
 
         return $this;
     }
-	
-	
+
+
 
     public function addVolumes($valor)
     {
@@ -245,8 +245,8 @@ class Es_Plugin_Woocommerce_API
     {
         return $this->volumes;
     }
-	
-	 public function send_labels($label_data)
+
+    public function send_labels($label_data)
     {
 
         $return = $this->call_curl('POST', '/es-api/tickets', $label_data);
@@ -392,7 +392,7 @@ class Es_Plugin_Woocommerce_API
     {
         $this->length = $length;
     }
-	
+
 
     private function only_numbers($val)
     {

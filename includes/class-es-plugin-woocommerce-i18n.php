@@ -24,7 +24,8 @@
  * @subpackage Es_Plugin_Woocommerce/includes
  * @author     https://github.com/Envio-Simples/es-plugin-woocommerce <contato@ecomd.com.br>
  */
-class Es_Plugin_Woocommerce_i18n {
+class Es_Plugin_Woocommerce_i18n
+{
 
 
 	/**
@@ -32,16 +33,13 @@ class Es_Plugin_Woocommerce_i18n {
 	 *
 	 * @since    1.0.0
 	 */
-	public function load_plugin_textdomain() {
+	public function load_plugin_textdomain()
+	{
 
 		load_plugin_textdomain(
 			'es-plugin-woocommerce',
 			false,
-			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
+			dirname(dirname(plugin_basename(__FILE__))) . '/languages/'
 		);
-
 	}
-
-
-
 }
