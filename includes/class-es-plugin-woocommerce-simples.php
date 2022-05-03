@@ -202,7 +202,6 @@ function woocommerce_enviosimples_init()
                     $volume['length'] = wc_get_dimension($length, 'cm'); //comprimento
                     $volume['width'] = wc_get_dimension($width, 'cm'); //largura
                     $volume['height'] = wc_get_dimension($height, 'cm'); //altura
-                    $price = $product->get_price();
 
                     $cm3 = $volume['length'] * $volume['width'] * $volume['height'];
 
