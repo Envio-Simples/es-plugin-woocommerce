@@ -251,18 +251,6 @@ class Es_Plugin_Woocommerce_main
             $token   = $this->isw_get_item_meta($order_id, '_token');
             $sandbox = $this->isw_get_item_meta($order_id, '_enviosimples_sandbox');
             
-             $log = new WC_Logger();
-            
-            $log_entry = print_r( $sender, true );
-
-            $log->add( 'Es_debug_ecomd', $log_entry );
-            
-              $log = new WC_Logger();
-            
-            $log_entry = print_r( $ticket, true );
-
-            $log->add( 'Es_debug_ecomd', $log_entry );
-            
             $envio = new Es_Plugin_Woocommerce_API($token, $sandbox);
         
             
