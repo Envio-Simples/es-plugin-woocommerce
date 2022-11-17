@@ -194,6 +194,7 @@ class Es_Plugin_Woocommerce
 		$this->loader->add_action('wp_ajax_nopriv_isw_woo_update_ticket', $main, 'isw_woo_update_ticket', 9999);
 		$this->loader->add_action('wp_ajax_isw_woo_update_ticket', $main, 'isw_woo_update_ticket', 9999);
 		$this->loader->add_action('restrict_manage_posts', $main, 'get_ticket', 99999);
+		$this->loader->add_action('woocommerce_after_checkout_validation', $main, 'ecomd_checking_fields', 99999,2);
 	}
 	/**
 	 * Register all of the hooks related to the admin area functionality
