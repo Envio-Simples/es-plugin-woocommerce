@@ -152,10 +152,34 @@ class Es_Plugin_Woocommerce_main
                 $order_item_id = $linha->order_item_id;
                 $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
 
-               
                     $item = get_the_title($this->isw_get_item_meta_id($order_item_id, '_product_id'));
+
+                    // Obter o ID do produto
+                    $product_id = $this->isw_get_item_meta_id($order_item_id, '_product_id');
                     
+                    // Carregar o produto WooCommerce
+                    $product = wc_get_product($product_id);
+                    
+                    // Obter os atributos do produto
+                    $attributes = $product->get_attributes();
+                    $attributes_text = '';
+                    
+                    foreach ($attributes as $attribute_name => $attribute) {
+                        if ($attribute->is_taxonomy()) {
+                            // Atributos como taxonomia (ex: cor, tamanho)
+                            $terms = wp_get_post_terms($product_id, $attribute->get_name(), array('fields' => 'names'));
+                            $attributes_text .= ucfirst(wc_attribute_label($attribute->get_name())) . ': ' . implode(', ', $terms) . '; ';
+                        } else {
+                            // Atributos customizados
+                            $attributes_text .= ucfirst(wc_attribute_label($attribute->get_name())) . ': ' . implode(', ', $attribute->get_options()) . '; ';
+                        }
+                    }
+                    
+                    // Limpar possíveis hífens do nome original
                     $item = str_replace("-", "", $item);
+                    
+                    // Concatenar os atributos ao nome do produto
+                    $item .= ' - ' . trim(rtrim($attributes_text, '; '));
                     
                     $content = $name_product[$i] . ' e etc';
 
