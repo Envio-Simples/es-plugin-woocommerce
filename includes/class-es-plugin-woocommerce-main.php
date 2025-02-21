@@ -146,54 +146,128 @@ class Es_Plugin_Woocommerce_main
             
         
 
-            $declarationItens = [];
+            // $declarationItens = [];
             
+            // foreach ($rs as $linha) {
+            //     $order_item_id = $linha->order_item_id;
+            //     $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
+
+            //         $item = get_the_title($this->isw_get_item_meta_id($order_item_id, '_product_id'));
+
+            //         // Obter o ID do produto
+            //         $product_id = $this->isw_get_item_meta_id($order_item_id, '_product_id');
+                    
+            //         // Carregar o produto WooCommerce
+            //         $product = wc_get_product($product_id);
+                    
+            //         // Obter os atributos do produto
+            //         $attributes = $product->get_attributes();
+            //         $attributes_text = '';
+                    
+            //         foreach ($attributes as $attribute_name => $attribute) {
+            //             if ($attribute->is_taxonomy()) {
+            //                 // Atributos como taxonomia (ex: cor, tamanho)
+            //                 $terms = wp_get_post_terms($product_id, $attribute->get_name(), array('fields' => 'names'));
+            //                 $attributes_text .= ucfirst(wc_attribute_label($attribute->get_name())) . ': ' . implode(', ', $terms) . '; ';
+            //             } else {
+            //                 // Atributos customizados
+            //                 $attributes_text .= ucfirst(wc_attribute_label($attribute->get_name())) . ': ' . implode(', ', $attribute->get_options()) . '; ';
+            //             }
+            //         }
+                    
+            //         // Limpar possíveis hífens do nome original
+            //         $item = str_replace("-", "", $item);
+                    
+            //         // Concatenar os atributos ao nome do produto
+            //         $item .= ' - ' . trim(rtrim($attributes_text, '; '));
+                    
+            //         $content = $name_product[$i] . ' e etc';
+
+            //         $subtotal   = $this->isw_get_item_meta_id($order_item_id, '_line_subtotal');
+
+            //         $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
+
+            //         $value = $subtotal / $quantidade;
+
+            //         $count = 1;
+
+            //         $declarationItens[] = array('item' => "{$item}", 'value' => $value, 'count' => $quantidade);
+            //    }
+
+            $declarationItens = [];
+
             foreach ($rs as $linha) {
+                // ID do item do pedido
                 $order_item_id = $linha->order_item_id;
-                $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
-
-                    $item = get_the_title($this->isw_get_item_meta_id($order_item_id, '_product_id'));
-
-                    // Obter o ID do produto
-                    $product_id = $this->isw_get_item_meta_id($order_item_id, '_product_id');
-                    
-                    // Carregar o produto WooCommerce
+        
+                // Obter metadados
+                $product_id    = $this->isw_get_item_meta_id($order_item_id, '_product_id');
+                $variation_id  = $this->isw_get_item_meta_id($order_item_id, '_variation_id');
+                $quantidade    = $this->isw_get_item_meta_id($order_item_id, '_qty');
+                $subtotal      = $this->isw_get_item_meta_id($order_item_id, '_line_subtotal');
+            
+                // Se houver variação, carregue a variação; caso contrário, carregue o produto pai
+                if ($variation_id && $variation_id != 0) {
+                    $product = wc_get_product($variation_id);
+                } else {
                     $product = wc_get_product($product_id);
-                    
-                    // Obter os atributos do produto
+                }
+        
+                 // Obter o título do produto (ou variação) atual
+                $item = get_the_title($product->get_id());
+        
+                // Preparar string para os atributos
+                $attributes_text = '';
+        
+                // Se for mesmo uma variação, podemos usar get_variation_attributes()
+                if ($product->is_type('variation')) {
+                // Retorna algo como ['attribute_pa_cor' => 'preto', 'attribute_pa_tamanho' => 'm']
+                    $variation_attributes = $product->get_variation_attributes();
+            
+                    foreach ($variation_attributes as $attr_name => $attr_value) {
+                        // Ex.: $attr_name = 'attribute_pa_cor'; precisamos do label da taxonomia
+                        $taxonomy = str_replace('attribute_', '', $attr_name);
+                        $label = wc_attribute_label($taxonomy, $product->get_id());
+            
+                        // Monta o texto: "Cor: Preto; "
+                        $attributes_text .= ucfirst($label) . ': ' . ucfirst($attr_value) . '; ';
+                    }
+                } else {
+                    // Produto simples ou produto pai
                     $attributes = $product->get_attributes();
-                    $attributes_text = '';
-                    
+            
                     foreach ($attributes as $attribute_name => $attribute) {
                         if ($attribute->is_taxonomy()) {
-                            // Atributos como taxonomia (ex: cor, tamanho)
-                            $terms = wp_get_post_terms($product_id, $attribute->get_name(), array('fields' => 'names'));
+                            // Atributos que são taxonomias (ex.: cor, tamanho)
+                            $terms = wp_get_post_terms($product->get_id(), $attribute->get_name(), ['fields' => 'names']);
                             $attributes_text .= ucfirst(wc_attribute_label($attribute->get_name())) . ': ' . implode(', ', $terms) . '; ';
                         } else {
-                            // Atributos customizados
-                            $attributes_text .= ucfirst(wc_attribute_label($attribute->get_name())) . ': ' . implode(', ', $attribute->get_options()) . '; ';
+                        // Atributos customizados
+                        $attributes_text .= ucfirst(wc_attribute_label($attribute->get_name())) . ': ' . implode(', ', $attribute->get_options()) . '; ';
                         }
                     }
-                    
-                    // Limpar possíveis hífens do nome original
-                    $item = str_replace("-", "", $item);
-                    
-                    // Concatenar os atributos ao nome do produto
-                    $item .= ' - ' . trim(rtrim($attributes_text, '; '));
-                    
-                    $content = $name_product[$i] . ' e etc';
+                }
 
-                    $subtotal   = $this->isw_get_item_meta_id($order_item_id, '_line_subtotal');
-
-                    $quantidade = $this->isw_get_item_meta_id($order_item_id, '_qty');
-
-                    $value = $subtotal / $quantidade;
-
-                    $count = 1;
-
-                    $declarationItens[] = array('item' => "{$item}", 'value' => $value, 'count' => $quantidade);
-               }
+                // Remover hífens do nome original (se houver)
+                $item = str_replace('-', '', $item);
             
+                // Concatenar os atributos ao nome do produto
+                $item .= ' - ' . trim(rtrim($attributes_text, '; '));
+            
+                // (Opcional) Se quiser usar algo como $name_product[$i], ajuste conforme sua lógica
+                // $content = $name_product[$i] . ' e etc';
+            
+                // Calcular valor unitário
+                $value = ($quantidade != 0) ? ($subtotal / $quantidade) : 0;
+            
+                // Montar array de retorno
+                $declarationItens[] = [
+                    'item'  => $item,
+                    'value' => $value,
+                    // Se quiser que "count" seja a quantidade do item
+                    'count' => $quantidade,
+                ];
+            }
       
             $type = get_post_meta($order_id, '_billing_persontype', true) != '1' ?   'legal-person':'physical-person';
             
