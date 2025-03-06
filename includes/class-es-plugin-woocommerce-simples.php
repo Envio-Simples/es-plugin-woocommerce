@@ -191,39 +191,68 @@ function woocommerce_enviosimples_init()
 
                 $quantity = WC()->cart->get_cart_contents_count();
 
-
-                $totalWeight = 0;
                 $totalCm3 = 0;
 
                 //Condição para realizar o fator cubagem em pedidos com mais de 1 produto
-
                 for ($i = 0; $i < $quantity; $i++) {
-                    $volume = [];
-                    $volume['length'] = wc_get_dimension($length, 'cm'); //comprimento
-                    $volume['width'] = wc_get_dimension($width, 'cm'); //largura
-                    $volume['height'] = wc_get_dimension($height, 'cm'); //altura
-
-                    $cm3 = $volume['length'] * $volume['width'] * $volume['height'];
-
-
+                    $convertedLength = wc_get_dimension($length, 'cm'); // comprimento convertido
+                    $convertedWidth  = wc_get_dimension($width, 'cm');  // largura convertida
+                    $convertedHeight = wc_get_dimension($height, 'cm'); // altura convertida
+                
+                    $cm3 = $convertedLength * $convertedWidth * $convertedHeight;
                     $totalCm3 += $cm3;
-
-
-                    $totalWeight = WC()->cart->get_cart_contents_weight();
-                    $cubic_root = pow($totalCm3, 1 / 3);
-                    $cubic_root = $cubic_root + $cubic_root * 5 / 100;
-                    $cm = ceil($cubic_root);
-
-                    //Adicionado volumes
-
-                    $volume = [];
-                    $volume['length'] = $cm; //comprimento
-                    $volume['width'] = $cm; //largura
-                    $volume['height'] = $cm; //altura
-                    $volume['weight'] = $totalWeight; //Peso Bruto do produto
-                    $volume['quantity'] = 1; //Quantidades de volume
-
                 }
+                
+                // Obtém o peso total dos itens
+                $totalWeight = WC()->cart->get_cart_contents_weight();
+                
+                // Define a tolerância para considerar as dimensões semelhantes (ex: 20% = 0.2)
+                $tolerancia = 0.2;
+                
+                // Organiza as dimensões originais em um array
+                $dims = [$length, $width, $height];
+                $maxDim = max($dims);
+                $minDim = min($dims);
+                
+                // Variável que armazenará o volume final para a embalagem
+                $volume = [];
+                
+                if ((($maxDim - $minDim) / $maxDim) < $tolerancia) {
+                    // Caso as dimensões sejam próximas, utiliza o cálculo de cubagem (caixa cúbica ou base quadrada)
+                    $cubic_root = pow($totalCm3, 1/3);
+                    // Adiciona 5% de margem
+                    $cubic_root = $cubic_root + $cubic_root * 0.05;
+                    // Arredonda para cima
+                    $cm = ceil($cubic_root);
+                
+                    $volume['length'] = $cm; // comprimento
+                    $volume['width']  = $cm; // largura
+                    $volume['height'] = $cm; // altura
+                    $volume['weight'] = $totalWeight; // peso bruto dos itens
+                    $volume['quantity'] = 1; // quantidade de volumes (normalmente 1 embalagem)
+
+                } else {
+                    // Se as dimensões forem significativamente diferentes, utiliza o cálculo para caixa retangular
+                    // Ordena as dimensões em ordem decrescente para identificar as duas maiores
+                    rsort($dims);
+                    $baseComprimento = $dims[0]; // maior dimensão
+                    $baseLargura    = $dims[1];  // segunda maior dimensão
+                    $areaBase = $baseComprimento * $baseLargura;
+                
+                    // Calcula a altura necessária para acomodar o volume total
+                    $alturaCalculada = $totalCm3 / $areaBase;
+                    // Adiciona 5% de margem
+                    $alturaCalculada *= 1.05;
+                    // Arredonda para cima
+                    $alturaCalculada = ceil($alturaCalculada);
+                
+                    $volume['length'] = $baseComprimento; // comprimento da base
+                    $volume['width']  = $baseLargura;       // largura da base
+                    $volume['height'] = $alturaCalculada;    // altura calculada
+                    $volume['weight'] = $totalWeight;
+                    $volume['quantity'] = 1;
+                }
+
 
                 $enviosimples->addVolumes($volume);
 
