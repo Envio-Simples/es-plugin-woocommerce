@@ -158,7 +158,9 @@ class Es_Plugin_Woocommerce_API
             'zipCodeDestiny' => "{$zipCodeDestiny}",
             'valueDeclared'  => "{$valueDeclared}",
             'reverse'        => "{$reverse}",
-            'volumes'        => $this->volumes
+            'volumes'        => $this->volumes,
+            'source'         => "es-plugin-woocommerce",
+            'medium'         => "woocommerce"
         ];
 
         if (trim($this->key) <> "") {
