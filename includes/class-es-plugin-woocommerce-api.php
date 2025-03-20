@@ -47,44 +47,60 @@ class Es_Plugin_Woocommerce_API
     }
 
     public function call_curl($type, $url, $parameters)
-    {
-        $headers = [
-            'Content-Type: application/json',
-            "es-app-key:{$this->esAppKey}"
-        ];
+{
+    $headers = [
+        'Content-Type: application/json',
+        "es-app-key:{$this->esAppKey}"
+    ];
 
+    if ($this->log_isw) {
+        $this->isw_log_envios('call_curl($type,$url,$parameters)', '$headers', $headers);
+    }
 
+    $params   = json_encode($parameters);
+    if ($this->log_isw) {
+        $this->isw_log_envios('call_curl($type,$url,$parameters)', '$params', $params);
+    }
+
+    $curl_url = $this->enviosimples_url . $url;
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch, CURLOPT_URL, $curl_url);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+    $userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'WordPress Plugin (sem user agent)';
+    curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+
+    $return = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if ($status == 0) {
         if ($this->log_isw) {
-            $this->isw_log_envios('call_curl($type,$url,$parameters)', '$headers', $headers);
+            $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', $return);
+        }
+        if ($this->log_isw) {
+            $this->isw_log_envios('call_curl($type,$url,$parameters)', '$status', $status);
+        }
+        if ($this->log_isw) {
+            $this->isw_log_envios('call_curl($type,$url,$parameters)', 'return', [
+                'error' => 1,
+                'message' => 'Não foi possível conectar-se com o Envio Simples. Tente novamente mais tarde'
+            ]);
         }
 
+        return (object)['error' => 1, 'message' => 'Não foi possível conectar-se com o Envio Simples. Tente novamente mais tarde'];
+    }
 
-        $params   = json_encode($parameters);
-        if ($this->log_isw) {
-            $this->isw_log_envios('call_curl($type,$url,$parameters)', '$params', $params);
-        }
-
-        $curl_url = $this->enviosimples_url . $url;
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_URL, $curl_url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-
-        $return = curl_exec($ch);
-
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-
-        if ($status == 0) {
+    if ($status > 400) {
+        if ($status == 401) {
             if ($this->log_isw) {
                 $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', $return);
             }
@@ -92,64 +108,61 @@ class Es_Plugin_Woocommerce_API
                 $this->isw_log_envios('call_curl($type,$url,$parameters)', '$status', $status);
             }
             if ($this->log_isw) {
-                $this->isw_log_envios('call_curl($type,$url,$parameters)', 'return', ['error' => 1, 'message' => 'Não foi possível conectar-se com o Envio Simples. Tente novamente mais tarde']);
+                $this->isw_log_envios('call_curl($type,$url,$parameters)', 'return', [
+                    'error' => 401,
+                    'message' => 'Acesso não autorizado. Verifique se o seu token foi preenchido corretamente ou fale com a Envio Simples'
+                ]);
             }
 
-            return (object)['error' => 1, 'message' => 'Não foi possível conectar-se com o Envio Simples. Tente novamente mais tarde'];
+            return (object)['error' => 401, 'message' => 'Acesso não autorizado. Verifique se o seu token foi preenchido corretamente ou fale com a Envio Simples'];
         }
 
-        if ($status > 400) {
-            if ($status == 401) {
-                if ($this->log_isw) {
-                    $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', $return);
-                }
-                if ($this->log_isw) {
-                    $this->isw_log_envios('call_curl($type,$url,$parameters)', '$status', $status);
-                }
-                if ($this->log_isw) {
-                    $this->isw_log_envios('call_curl($type,$url,$parameters)', 'return', ['error' => 401, 'message' => 'Acesso não autorizado. Verifique se o seu token foi preenchido corretamente ou fale com a Envio Simples']);
-                }
-
-                return (object) ['error' => 401, 'message' => 'Acesso não autorizado. Verifique se o seu token foi preenchido corretamente ou fale com a Envio Simples'];
-            }
-
-            $message = curl_error($ch);
-            curl_close($ch);
-
-            if ($this->log_isw) {
-                $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', $return);
-            }
-            if ($this->log_isw) {
-                $this->isw_log_envios('call_curl($type,$url,$parameters)', '$status', $status);
-            }
-            if ($this->log_isw) {
-                $this->isw_log_envios('call_curl($type,$url,$parameters)', 'return', ['error' => $status . '', 'message' => $message]);
-            }
-
-            return (object)['error' => $status . '', 'message' => $message];
-        }
-
-        $return_decode = json_decode($return);
-
-        if (isset($return_decode->data->error)) {
-            if ($this->log_isw) {
-                $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return_decode', $return_decode);
-            }
-            if ($this->log_isw) {
-                $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', ['error' => $return_decode->data->error . '', 'message' => $return_decode->data->message]);
-            }
-
-            return (object)(['error' => $return_decode->data->error . '', 'message' => $return_decode->data->message]);
-        }
-
+        $message = curl_error($ch);
         curl_close($ch);
 
         if ($this->log_isw) {
-            $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return_decode', $return_decode);
+            $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', $return);
+        }
+        if ($this->log_isw) {
+            $this->isw_log_envios('call_curl($type,$url,$parameters)', '$status', $status);
+        }
+        if ($this->log_isw) {
+            $this->isw_log_envios('call_curl($type,$url,$parameters)', 'return', [
+                'error' => $status . '',
+                'message' => $message
+            ]);
         }
 
-        return $return_decode; //Objetos Json
+        return (object)['error' => $status . '', 'message' => $message];
     }
+
+    $return_decode = json_decode($return);
+
+    if (isset($return_decode->data->error)) {
+        if ($this->log_isw) {
+            $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return_decode', $return_decode);
+        }
+        if ($this->log_isw) {
+            $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', [
+                'error' => $return_decode->data->error . '',
+                'message' => $return_decode->data->message
+            ]);
+        }
+
+        return (object)[
+            'error' => $return_decode->data->error . '',
+            'message' => $return_decode->data->message
+        ];
+    }
+
+    curl_close($ch);
+
+    if ($this->log_isw) {
+        $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return_decode', $return_decode);
+    }
+
+    return $return_decode; // Objetos JSON
+}
 
     public function calculate_shipping($zipCodeOrigin, $zipCodeDestiny, $valueDeclared, $reverse = 'false')
     {
