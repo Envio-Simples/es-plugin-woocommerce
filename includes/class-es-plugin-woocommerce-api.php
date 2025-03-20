@@ -48,16 +48,30 @@ class Es_Plugin_Woocommerce_API
 
     public function call_curl($type, $url, $parameters)
 {
+    // Tenta capturar a URL de origem a partir dos cabeçalhos ou da URL do site
+    $sourceUrl = '';
+    if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+        $sourceUrl = $_SERVER['HTTP_REFERER'];
+    } elseif (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+        $sourceUrl = $_SERVER['HTTP_ORIGIN'];
+    } elseif (function_exists('get_home_url')) {
+        // Fallback: URL base do site, se disponível no contexto do WordPress
+        $sourceUrl = get_home_url();
+    } else {
+        $sourceUrl = 'URL não informada';
+    }
+
     $headers = [
         'Content-Type: application/json',
-        "es-app-key:{$this->esAppKey}"
+        "es-app-key:{$this->esAppKey}",
+        'X-Source-URL: ' . $sourceUrl
     ];
 
     if ($this->log_isw) {
         $this->isw_log_envios('call_curl($type,$url,$parameters)', '$headers', $headers);
     }
 
-    $params   = json_encode($parameters);
+    $params = json_encode($parameters);
     if ($this->log_isw) {
         $this->isw_log_envios('call_curl($type,$url,$parameters)', '$params', $params);
     }
@@ -85,17 +99,12 @@ class Es_Plugin_Woocommerce_API
     if ($status == 0) {
         if ($this->log_isw) {
             $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', $return);
-        }
-        if ($this->log_isw) {
             $this->isw_log_envios('call_curl($type,$url,$parameters)', '$status', $status);
-        }
-        if ($this->log_isw) {
             $this->isw_log_envios('call_curl($type,$url,$parameters)', 'return', [
                 'error' => 1,
                 'message' => 'Não foi possível conectar-se com o Envio Simples. Tente novamente mais tarde'
             ]);
         }
-
         return (object)['error' => 1, 'message' => 'Não foi possível conectar-se com o Envio Simples. Tente novamente mais tarde'];
     }
 
@@ -103,52 +112,37 @@ class Es_Plugin_Woocommerce_API
         if ($status == 401) {
             if ($this->log_isw) {
                 $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', $return);
-            }
-            if ($this->log_isw) {
                 $this->isw_log_envios('call_curl($type,$url,$parameters)', '$status', $status);
-            }
-            if ($this->log_isw) {
                 $this->isw_log_envios('call_curl($type,$url,$parameters)', 'return', [
                     'error' => 401,
                     'message' => 'Acesso não autorizado. Verifique se o seu token foi preenchido corretamente ou fale com a Envio Simples'
                 ]);
             }
-
             return (object)['error' => 401, 'message' => 'Acesso não autorizado. Verifique se o seu token foi preenchido corretamente ou fale com a Envio Simples'];
         }
 
         $message = curl_error($ch);
         curl_close($ch);
-
         if ($this->log_isw) {
             $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', $return);
-        }
-        if ($this->log_isw) {
             $this->isw_log_envios('call_curl($type,$url,$parameters)', '$status', $status);
-        }
-        if ($this->log_isw) {
             $this->isw_log_envios('call_curl($type,$url,$parameters)', 'return', [
                 'error' => $status . '',
                 'message' => $message
             ]);
         }
-
         return (object)['error' => $status . '', 'message' => $message];
     }
 
     $return_decode = json_decode($return);
-
     if (isset($return_decode->data->error)) {
         if ($this->log_isw) {
             $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return_decode', $return_decode);
-        }
-        if ($this->log_isw) {
             $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return', [
                 'error' => $return_decode->data->error . '',
                 'message' => $return_decode->data->message
             ]);
         }
-
         return (object)[
             'error' => $return_decode->data->error . '',
             'message' => $return_decode->data->message
@@ -156,13 +150,12 @@ class Es_Plugin_Woocommerce_API
     }
 
     curl_close($ch);
-
     if ($this->log_isw) {
         $this->isw_log_envios('call_curl($type,$url,$parameters)', '$return_decode', $return_decode);
     }
-
     return $return_decode; // Objetos JSON
 }
+
 
     public function calculate_shipping($zipCodeOrigin, $zipCodeDestiny, $valueDeclared, $reverse = 'false')
     {
