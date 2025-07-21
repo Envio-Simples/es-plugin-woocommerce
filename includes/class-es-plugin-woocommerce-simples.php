@@ -155,17 +155,6 @@ function woocommerce_enviosimples_init()
                 echo $this->get_admin_options_html();
             }
 
-            function parseDecimal(string $value): float
-            {
-                // 1) remove tudo exceto dígitos, vírgula e ponto
-                $sanitized = preg_replace('/[^0-9\.,]/', '', $value);
-                // 2) padroniza vírgula para ponto
-                $normalized = str_replace(',', '.', $sanitized);
-                // 3) converte para float
-                return (float) $normalized;
-            }
-
-
             public function calculate_shipping($package = false)
             {
                 $use_this_method = $this->validate_shipping($package);
@@ -196,9 +185,16 @@ function woocommerce_enviosimples_init()
                    // $width  = (int)preg_replace("/[^0-9]/", "", $product->get_width());
                    // $length = (int)preg_replace("/[^0-9]/", "", $product->get_length());
 
-                   $height = parseDecimal($product->get_height());
-                   $width  = parseDecimal($product->get_width());
-                   $length = parseDecimal($product->get_length());
+                   $height = (float) str_replace(',', '.',
+                        preg_replace('/[^0-9\.,]/', '', $product->get_height())
+                    );
+                    $width  = (float) str_replace(',', '.',
+                        preg_replace('/[^0-9\.,]/', '', $product->get_width())
+                    );
+
+                    $length = (float) str_replace(',', '.',
+                        preg_replace('/[^0-9\.,]/', '', $product->get_length())
+                    );
 
                     $quantity = $item['quantity'];
                 }
@@ -370,9 +366,18 @@ function woocommerce_enviosimples_init()
                // $height = (int)preg_replace("/[^0-9]/", "", $product->get_height());
                // $width  = (int)preg_replace("/[^0-9]/", "", $product->get_width());
                // $length = (int)preg_replace("/[^0-9]/", "", $product->get_length());
-               $height = parseDecimal($product->get_height());
-               $width  = parseDecimal($product->get_width());
-               $length = parseDecimal($product->get_length());
+
+                $height = (float) str_replace(',', '.',
+                    preg_replace('/[^0-9\.,]/', '', $product->get_height())
+                );
+
+                $width  = (float) str_replace(',', '.',
+                    preg_replace('/[^0-9\.,]/', '', $product->get_width())
+                );
+
+                $length = (float) str_replace(',', '.',
+                    preg_replace('/[^0-9\.,]/', '', $product->get_length())
+                );
 
                $weight = (int)preg_replace("/[^0-9]/", "", wc_get_weight($product->get_weight(), 'kg'));
 
