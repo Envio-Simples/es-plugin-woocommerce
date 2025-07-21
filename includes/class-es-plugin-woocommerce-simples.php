@@ -155,6 +155,16 @@ function woocommerce_enviosimples_init()
                 echo $this->get_admin_options_html();
             }
 
+            function parseDecimal(string $value): float
+            {
+                // 1) remove tudo exceto dígitos, vírgula e ponto
+                $sanitized = preg_replace('/[^0-9\.,]/', '', $value);
+                // 2) padroniza vírgula para ponto
+                $normalized = str_replace(',', '.', $sanitized);
+                // 3) converte para float
+                return (float) $normalized;
+            }
+
 
             public function calculate_shipping($package = false)
             {
@@ -182,9 +192,13 @@ function woocommerce_enviosimples_init()
 
                     $product = $item['data'];
 
-                    $height = (int)preg_replace("/[^0-9]/", "", $product->get_height());
-                    $width  = (int)preg_replace("/[^0-9]/", "", $product->get_width());
-                    $length = (int)preg_replace("/[^0-9]/", "", $product->get_length());
+                   // $height = (int)preg_replace("/[^0-9]/", "", $product->get_height());
+                   // $width  = (int)preg_replace("/[^0-9]/", "", $product->get_width());
+                   // $length = (int)preg_replace("/[^0-9]/", "", $product->get_length());
+
+                   $height = parseDecimal($product->get_height());
+                   $width  = parseDecimal($product->get_width());
+                   $length = parseDecimal($product->get_length());
 
                     $quantity = $item['quantity'];
                 }
@@ -353,10 +367,14 @@ function woocommerce_enviosimples_init()
                 $key         = $this->instance_settings['key'];
                 $sandbox     = $this->instance_settings['sandbox'];
 
-                $height = (int)preg_replace("/[^0-9]/", "", $product->get_height());
-                $width  = (int)preg_replace("/[^0-9]/", "", $product->get_width());
-                $length = (int)preg_replace("/[^0-9]/", "", $product->get_length());
-                $weight = (int)preg_replace("/[^0-9]/", "", wc_get_weight($product->get_weight(), 'kg'));
+               // $height = (int)preg_replace("/[^0-9]/", "", $product->get_height());
+               // $width  = (int)preg_replace("/[^0-9]/", "", $product->get_width());
+               // $length = (int)preg_replace("/[^0-9]/", "", $product->get_length());
+               $height = parseDecimal($product->get_height());
+               $width  = parseDecimal($product->get_width());
+               $length = parseDecimal($product->get_length());
+
+               $weight = (int)preg_replace("/[^0-9]/", "", wc_get_weight($product->get_weight(), 'kg'));
 
                 $quantity = 0;
                 $cart            = $woocommerce->cart->get_cart();
