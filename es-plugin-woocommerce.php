@@ -10,7 +10,7 @@
  * Plugin Name:       WooCommerce Envio Simples 
  * Plugin URI:        Thales Matoso, srgoogle23
  * Description:       Adds Envio Simples shipping methods to your WooCommerce store.
- * Version:           2.0.0
+ * Version:           2.0.1
  * Author:            https://github.com/Envio-Simples/es-plugin-woocommerce
  * Author URI:        https://github.com/Envio-Simples/es-plugin-woocommerce
  * License:           GPL-2.0+
