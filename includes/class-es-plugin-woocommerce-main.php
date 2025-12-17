@@ -345,7 +345,7 @@ class Es_Plugin_Woocommerce_main
                 'typeEmission' => 'integration'
             ];
 
-            $ticketData = [$ticket]
+            $ticketData = [$ticket];
          
    
             $token   = $this->isw_get_item_meta($order_id, '_token');
