@@ -177,94 +177,38 @@ function woocommerce_enviosimples_init()
                 $width;
                 $lenght;
 
+                $toFloatDim = function($value) {
+                    $clean = preg_replace('/[^0-9\.,]/', '', (string) $value);
+                    $clean = str_replace(',', '.', $clean);
+                    return (float) $clean;
+                };
+                
                 foreach ($package['contents'] as $item) {
-
                     $product = $item['data'];
-
-                   // $height = (int)preg_replace("/[^0-9]/", "", $product->get_height());
-                   // $width  = (int)preg_replace("/[^0-9]/", "", $product->get_width());
-                   // $length = (int)preg_replace("/[^0-9]/", "", $product->get_length());
-
-                   $height = (float) str_replace(',', '.',
-                        preg_replace('/[^0-9\.,]/', '', $product->get_height())
-                    );
-                    $width  = (float) str_replace(',', '.',
-                        preg_replace('/[^0-9\.,]/', '', $product->get_width())
-                    );
-
-                    $length = (float) str_replace(',', '.',
-                        preg_replace('/[^0-9\.,]/', '', $product->get_length())
-                    );
-
-                    $quantity = $item['quantity'];
+                    $qty     = (int) $item['quantity'];
+                
+                    $height = $toFloatDim($product->get_height());
+                    $width  = $toFloatDim($product->get_width());
+                    $length = $toFloatDim($product->get_length());
+                
+                    // Converte para cm (com base na unidade configurada no WooCommerce)
+                    $convertedLength = (float) wc_get_dimension($length, 'cm');
+                    $convertedWidth  = (float) wc_get_dimension($width, 'cm');
+                    $convertedHeight = (float) wc_get_dimension($height, 'cm');
+                
+                    // Peso unitário do produto (kg)
+                    $unitWeight = (float) wc_get_weight($product->get_weight(), 'kg');
+                
+                    $volume = [
+                        'length'   => (int) ceil($convertedLength),
+                        'width'    => (int) ceil($convertedWidth),
+                        'height'   => (int) ceil($convertedHeight),
+                        'weight'   => (float) ($unitWeight * $qty), // peso total daquele item
+                        'quantity' => $qty,                         // mantém a quantidade
+                    ];
+                
+                    $enviosimples->addVolumes($volume);
                 }
-
-                $quantity = WC()->cart->get_cart_contents_count();
-
-                $totalCm3 = 0;
-
-                //Condição para realizar o fator cubagem em pedidos com mais de 1 produto
-                for ($i = 0; $i < $quantity; $i++) {
-                    $convertedLength = wc_get_dimension($length, 'cm'); // comprimento convertido
-                    $convertedWidth  = wc_get_dimension($width, 'cm');  // largura convertida
-                    $convertedHeight = wc_get_dimension($height, 'cm'); // altura convertida
-                
-                    $cm3 = $convertedLength * $convertedWidth * $convertedHeight;
-                    $totalCm3 += $cm3;
-                }
-                
-                // Obtém o peso total dos itens
-                $totalWeight = WC()->cart->get_cart_contents_weight();
-                
-                // Define a tolerância para considerar as dimensões semelhantes (ex: 20% = 0.2)
-                $tolerancia = 0.2;
-                
-                // Organiza as dimensões originais em um array
-                $dims = [$length, $width, $height];
-                $maxDim = max($dims);
-                $minDim = min($dims);
-                
-                // Variável que armazenará o volume final para a embalagem
-                $volume = [];
-                
-                if ((($maxDim - $minDim) / $maxDim) < $tolerancia) {
-                    // Caso as dimensões sejam próximas, utiliza o cálculo de cubagem (caixa cúbica ou base quadrada)
-                    $cubic_root = pow($totalCm3, 1/3);
-                    // Adiciona 5% de margem
-                    $cubic_root = $cubic_root + $cubic_root * 0.05;
-                    // Arredonda para cima
-                    $cm = ceil($cubic_root);
-                
-                    $volume['length'] = $cm; // comprimento
-                    $volume['width']  = $cm; // largura
-                    $volume['height'] = $cm; // altura
-                    $volume['weight'] = $totalWeight; // peso bruto dos itens
-                    $volume['quantity'] = 1; // quantidade de volumes (normalmente 1 embalagem)
-
-                } else {
-                    // Se as dimensões forem significativamente diferentes, utiliza o cálculo para caixa retangular
-                    // Ordena as dimensões em ordem decrescente para identificar as duas maiores
-                    rsort($dims);
-                    $baseComprimento = $dims[0]; // maior dimensão
-                    $baseLargura    = $dims[1];  // segunda maior dimensão
-                    $areaBase = $baseComprimento * $baseLargura;
-                
-                    // Calcula a altura necessária para acomodar o volume total
-                    $alturaCalculada = $totalCm3 / $areaBase;
-                    // Adiciona 5% de margem
-                    $alturaCalculada *= 1.05;
-                    // Arredonda para cima
-                    $alturaCalculada = ceil($alturaCalculada);
-                
-                    $volume['length'] = $baseComprimento; // comprimento da base
-                    $volume['width']  = $baseLargura;       // largura da base
-                    $volume['height'] = $alturaCalculada;    // altura calculada
-                    $volume['weight'] = $totalWeight;
-                    $volume['quantity'] = 1;
-                }
-
-
-                $enviosimples->addVolumes($volume);
 
 
                 $zipCodeOrigin  = $this->instance_settings['zipCodeOrigin'];
