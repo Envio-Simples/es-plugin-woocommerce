@@ -183,33 +183,36 @@ function woocommerce_enviosimples_init()
                     return (float) $clean;
                 };
                 
+                $volumes = [];
+                
                 foreach ($package['contents'] as $item) {
                     $product = $item['data'];
                     $qty     = (int) $item['quantity'];
-                
+
                     $height = $toFloatDim($product->get_height());
                     $width  = $toFloatDim($product->get_width());
                     $length = $toFloatDim($product->get_length());
-                
-                    // Converte para cm (com base na unidade configurada no WooCommerce)
-                    $convertedLength = (float) wc_get_dimension($length, 'cm');
-                    $convertedWidth  = (float) wc_get_dimension($width, 'cm');
-                    $convertedHeight = (float) wc_get_dimension($height, 'cm');
-                
-                    // Peso unitário do produto (kg)
+
+                    // cm
+                    $cL = (float) wc_get_dimension($length, 'cm');
+                    $cW = (float) wc_get_dimension($width,  'cm');
+                    $cH = (float) wc_get_dimension($height, 'cm');
+
+                    // kg (unitário)
                     $unitWeight = (float) wc_get_weight($product->get_weight(), 'kg');
-                
-                    $volume = [
-                        'length'   => (int) ceil($convertedLength),
-                        'width'    => (int) ceil($convertedWidth),
-                        'height'   => (int) ceil($convertedHeight),
-                        'weight'   => (float) ($unitWeight * $qty), // peso total daquele item
-                        'quantity' => $qty,                         // mantém a quantidade
+
+                    $volumes[] = [
+                        'length'   => (int) ceil($cL),
+                        'width'    => (int) ceil($cW),
+                        'height'   => (int) ceil($cH),
+                        'weight'   => $unitWeight, // total daquele item
+                        'quantity' => $qty,                         // mantém quantidade
                     ];
-                
-                    $enviosimples->addVolumes($volume);
                 }
 
+                foreach ($volumes as $v) {
+                    $enviosimples->addVolumes($v);
+                }
 
                 $zipCodeOrigin  = $this->instance_settings['zipCodeOrigin'];
                 $zipCodeOrigin = str_replace('.', '', $zipCodeOrigin);
