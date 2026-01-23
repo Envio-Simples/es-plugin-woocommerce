@@ -164,7 +164,7 @@ class Es_Plugin_Woocommerce_API
             'zipCodeDestiny' => "{$zipCodeDestiny}",
             'valueDeclared'  => "{$valueDeclared}",
             'reverse'        => "{$reverse}",
-            'volumes'        => $this->volumes,
+            'products'        => $this->volumes,
             'source'         => "es-plugin-woocommerce",
             'medium'         => "woocommerce"
         ];
