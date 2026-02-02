@@ -227,7 +227,7 @@ class Es_Plugin_Woocommerce_main
                     foreach ($variation_attributes as $attr_name => $attr_value) {
                         // Ex.: $attr_name = 'attribute_pa_cor'; precisamos do label da taxonomia
                         $taxonomy = str_replace('attribute_', '', $attr_name);
-                        $productTest = wc_get_product($variation_id)
+                        $productTest = wc_get_product( $variation_id );
                         $label = $productTest ? wc_attribute_label( 'cor', $productTest ) : wc_attribute_label( 'cor' );
             
                         // Monta o texto: "Cor: Preto; "
