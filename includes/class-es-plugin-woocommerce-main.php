@@ -344,11 +344,8 @@ class Es_Plugin_Woocommerce_main
                 'additionalServices' => $additionalServices,
                 'typeEmission' => 'integration'
             ];
-
-            $ticketData = [$ticket];
-         
    
-           $token   = $this->isw_get_item_meta($order_id, '_token');
+            $token   = $this->isw_get_item_meta($order_id, '_token');
             $sandbox = $this->isw_get_item_meta($order_id, '_enviosimples_sandbox');
 
             $envio = new Es_Plugin_Woocommerce_API($token, $sandbox);
@@ -387,10 +384,11 @@ class Es_Plugin_Woocommerce_main
 
                 }
 
-            } else {
+            }else {
                 //não faz nada 
-                }
             }
+        }
+            
     }
 
     // Function para adicionar o botão de "Gerar Etiqueta" toda vez que um pedido alterar o status para "Novo pedido" ou "Completo"
