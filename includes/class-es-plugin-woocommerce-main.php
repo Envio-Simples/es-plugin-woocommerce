@@ -349,7 +349,11 @@ class Es_Plugin_Woocommerce_main
             $ticketData = [$ticket];
 
 
-            $token   = $this->isw_get_item_meta($order_id, '_token');
+            //$token   = $this->isw_get_item_meta($order_id, '_token');
+            $token = get_post_meta($order_id, '_token', true);
+            if (empty($token)) {
+              $token = $this->isw_get_item_meta($order_id, '_token'); // tenta no shipping itemmeta
+            }
             $sandbox = $this->isw_get_item_meta($order_id, '_enviosimples_sandbox');
 
             $envio = new Es_Plugin_Woocommerce_API($token, $sandbox);
@@ -629,20 +633,15 @@ class Es_Plugin_Woocommerce_main
 
    public function isw_column_ticket($columns)
     {
-        $new_columns = is_array($columns) ? $columns : [];
-    
-        $order_actions = $columns['order_actions'] ?? null;
+        $new_columns = (is_array($columns)) ? $columns : array();
     
         unset($new_columns['order_actions']);
-    
+
         $new_columns['isw_ticket'] = 'Envio Simples';
-    
-        // só recoloca se existir
-        if ($order_actions !== null) {
-            $new_columns['order_actions'] = $order_actions;
-        }
-    
-        return $new_columns;
+
+        $new_columns['order_actions'] = $columns['order_actions'];
+
+         return $new_columns;
     }
     
 
