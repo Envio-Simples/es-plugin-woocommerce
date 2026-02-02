@@ -176,11 +176,16 @@ class Es_Plugin_Woocommerce
 
 		add_action('woocommerce_shipping_init', 'woocommerce_enviosimples_init');
 		add_action('wp_ajax_nopriv_isw_woo_update_ticket', 'isw_woo_update_ticket', 99999);
-		add_action('wp_ajax_isw_woo_update_ticket', 'isw_woo_update_ticket', 99999);
+		;
 
 
 
 		$main = new Es_Plugin_Woocommerce_main();
+
+		//add_action('wp_ajax_isw_woo_update_ticket', 'isw_woo_update_ticket', 99999)
+
+        add_action('wp_ajax_isw_woo_update_ticket', [$main, 'isw_woo_update_ticket']);
+
 
 		$this->loader->add_action('woocommerce_order_status_processing', $main, 'button_generate', 9999, 1);
 		$this->loader->add_action('woocommerce_order_status_completed', $main, 'button_generate', 9999, 1);

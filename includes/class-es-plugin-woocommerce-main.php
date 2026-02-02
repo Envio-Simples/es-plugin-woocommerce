@@ -629,18 +629,19 @@ class Es_Plugin_Woocommerce_main
 
    public function isw_column_ticket($columns)
     {
-        $new_columns = (is_array($columns)) ? $columns : array();
-
+        $new_columns = is_array($columns) ? $columns : [];
+    
+        $order_actions = $columns['order_actions'] ?? null;
+    
         unset($new_columns['order_actions']);
-
-        //edit this for your column(s)
-        //all of your columns will be added before the actions column
+    
         $new_columns['isw_ticket'] = 'Envio Simples';
-
-  
-        //stop editing
-        $new_columns['order_actions'] = $columns['order_actions'];
-
+    
+        // só recoloca se existir
+        if ($order_actions !== null) {
+            $new_columns['order_actions'] = $order_actions;
+        }
+    
         return $new_columns;
     }
     
