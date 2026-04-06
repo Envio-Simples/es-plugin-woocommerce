@@ -359,155 +359,69 @@ class Es_Plugin_Woocommerce_main
             $envio = new Es_Plugin_Woocommerce_API($token, $sandbox);
 
 
-            $etiqueta = $envio->call_curl('POST', '/es-tickets/generate-ticketv2/'.$token.'', $ticketData);
-
-            $url    = esc_url(''.$etiqueta->data->link.'');
-
-            $data_button = get_post_meta($post->ID, 'button_ticket',true).'';
+            $etiqueta = $envio->call_curl('POST', '/es-tickets/generate-ticketv2/' . $token, $ticketData);
 
             $id = $order_id;
-
-            if (is_object($etiqueta)) {
-
-                // 201 = criado / emissão concluída
-                if ($etiqueta->code == 201 && isset($etiqueta->data)) {
-
-                    $data = $etiqueta->data;
-
-                    // Sucesso: verifica se existe array "success" com itens
-                    if (isset($data->success) && is_array($data->success) && count($data->success) > 0) {
-
-                        $ticket_success = $data->success[0]; // primeiro (e único) item
-
-                        // Garante que existe link
-                        if (isset($ticket_success->link) && !empty($ticket_success->link)) {
-                            $url = esc_url($ticket_success->link);
-
-                            update_post_meta(
-                                $order_id,
-                                "{$meta_key}",
-                                '<a href="' . $url . '" title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>'
-                            );
-                            update_post_meta($order_id, 'button_ticket', '');
-
-                            // Opcional: salvar outros dados úteis
-                            // update_post_meta($order_id, '_ticket_id', $ticket_success->id);
-                            // update_post_meta($order_id, '_internal_code', $ticket_success->internalCode);
-                            // update_post_meta($order_id, '_tracking_link', $ticket_success->trackingLink);
-                        } else {
-                            // Sucesso mas sem link → erro genérico
-                            update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
-                            update_post_meta(
-                                $order_id,
-                                'button_ticket',
-                                '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>'
-                            );
-                        }
-
-                    } 
-                    // Verifica se há falhas
-                    elseif (isset($data->failures) && is_array($data->failures) && count($data->failures) > 0) {
-
-                        $failure = $data->failures[0]; // primeiro erro
-
-                        // Identifica o tipo de erro
-                        $errorCode = isset($failure->error) ? $failure->error : (isset($failure->code) ? $failure->code : null);
-
-                        // Caso específico: ticket já existe
-                        if ($errorCode === 'ticket_exist') {
-
-                            // Se retornar link no erro, usa ele
-                            $url = isset($failure->link) ? esc_url($failure->link) : '';
-
-                            if (!empty($url)) {
-                                update_post_meta(
-                                    $order_id,
-                                    "{$meta_key}",
-                                    '<a href="' . $url . '" title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>'
-                                );
-                                update_post_meta($order_id, 'button_ticket', '');
-                            } else {
-                                // Ticket existe mas sem link → erro genérico
-                                update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
-                                update_post_meta(
-                                    $order_id,
-                                    'button_ticket',
-                                    '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>'
-                                );
-                            }
-
-                        } else {
-                            // Qualquer outro erro
-                            update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
-                            update_post_meta(
-                                $order_id,
-                                'button_ticket',
-                                '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>'
-                            );
-                        }
-
-                    } else {
-                        // 201 mas sem success nem failures → situação inesperada
-                        update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
+            
+            $retryButton = '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>';
+            
+            if (is_object($etiqueta) && isset($etiqueta->data) && is_object($etiqueta->data)) {
+                $data = $etiqueta->data;
+            
+                $success = (isset($data->successes) && is_array($data->successes) && count($data->successes) > 0)
+                    ? $data->successes[0]
+                    : null;
+            
+                $failure = (isset($data->failures) && is_array($data->failures) && count($data->failures) > 0)
+                    ? $data->failures[0]
+                    : null;
+            
+                // CASO DE SUCESSO
+                if ($etiqueta->code == 201 && $success) {
+                    if (!empty($success->link)) {
+                        $url = esc_url($success->link);
+            
                         update_post_meta(
                             $order_id,
-                            'button_ticket',
-                            '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>'
+                            $meta_key,
+                            '<a href="' . $url . '" title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>'
                         );
-                    }
-
-                } else {
-                    // Código diferente de 201 (ex: 422, 400, 500)
-                    $data = isset($etiqueta->data) ? $etiqueta->data : null;
-
-                    // Tenta buscar failures
-                    if ($data && isset($data->failures) && is_array($data->failures) && count($data->failures) > 0) {
-
-                        $failure = $data->failures[0];
-                        $errorCode = isset($failure->error) ? $failure->error : (isset($failure->code) ? $failure->code : null);
-
-                        // ticket_exist
-                        if ($errorCode === 'ticket_exist') {
-                            $url = isset($failure->link) ? esc_url($failure->link) : '';
-
-                            if (!empty($url)) {
-                                update_post_meta(
-                                    $order_id,
-                                    "{$meta_key}",
-                                    '<a href="' . $url . '" title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>'
-                                );
-                                update_post_meta($order_id, 'button_ticket', '');
-                            } else {
-                                update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
-                                update_post_meta(
-                                    $order_id,
-                                    'button_ticket',
-                                    '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>'
-                                );
-                            }
-                        } else {
-                            // Outro erro
-                            update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
-                            update_post_meta(
-                                $order_id,
-                                'button_ticket',
-                                '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>'
-                            );
-                        }
-
+                        update_post_meta($order_id, 'button_ticket', '');
+            
+                        // opcionais
+                        // update_post_meta($order_id, '_ticket_id', $success->id ?? '');
+                        // update_post_meta($order_id, '_internal_code', $success->internalCode ?? '');
+                        // update_post_meta($order_id, '_tracking_link', $success->trackingLink ?? '');
                     } else {
-                        // Erro sem detalhes → genérico
-                        update_post_meta($order_id, "{$meta_key}", 'Tente novamente');
-                        update_post_meta(
-                            $order_id,
-                            'button_ticket',
-                            '<p><button class="button getTicket" id="ticketButton" value="' . $id . '">Gerar Etiqueta</button></p>'
-                        );
+                        update_post_meta($order_id, $meta_key, 'Tente novamente');
+                        update_post_meta($order_id, 'button_ticket', $retryButton);
                     }
                 }
-
-            } else {
-                // Resposta não é um objeto → não faz nada
+            
+                // CASO DE FALHA
+                elseif ($failure) {
+                    $errorCode = $failure->error ?? $failure->code ?? null;
+                    $failureLink = !empty($failure->link) ? esc_url($failure->link) : '';
+            
+                    // ticket já existe
+                    if ($errorCode === 'ticket_exist' && !empty($failureLink)) {
+                        update_post_meta(
+                            $order_id,
+                            $meta_key,
+                            '<a href="' . $failureLink . '" title="Clique aqui para imprimir a etiqueta da Envio Simples" target="_blank">Imprimir</a>'
+                        );
+                        update_post_meta($order_id, 'button_ticket', '');
+                    } else {
+                        update_post_meta($order_id, $meta_key, 'Tente novamente');
+                        update_post_meta($order_id, 'button_ticket', $retryButton);
+                    }
+                }
+            
+                // RESPOSTA INESPERADA
+                else {
+                    update_post_meta($order_id, $meta_key, 'Tente novamente');
+                    update_post_meta($order_id, 'button_ticket', $retryButton);
+                }
             }
         }
             
